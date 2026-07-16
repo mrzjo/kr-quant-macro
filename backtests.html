@@ -1,0 +1,284 @@
+<meta charset="utf-8">
+<title>kr-quant 백테스트 결과</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --surface-1: #fcfcfb; --page: #f9f9f7;
+  --ink-1: #0b0b0b; --ink-2: #52514e; --ink-mut: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #008300; --neg: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #008300; --neg: #e66767;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --surface-1: #1a1a19; --page: #0d0d0d;
+  --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #008300; --neg: #e66767;
+}
+.viz-root {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page); color: var(--ink-1);
+  margin: 0; padding: 20px; min-height: 100vh; box-sizing: border-box;
+  max-width: 1080px; margin-left: auto; margin-right: auto;
+}
+.viz-root h1 { font-size: 19px; margin: 0 0 2px; }
+.sub { color: var(--ink-2); font-size: 12.5px; margin: 0 0 6px; }
+.nav { font-size: 13px; margin: 0 0 18px; }
+.nav a { color: var(--s1); text-decoration: none; margin-right: 14px; }
+.nav .here { color: var(--ink-1); font-weight: 700; margin-right: 14px; }
+section { margin: 0 0 26px; }
+.viz-root h2 { font-size: 15px; margin: 0 0 2px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 9px;
+  border-radius: 9px; border: 1px solid var(--axis); color: var(--ink-2);
+  vertical-align: 2px; margin-left: 8px; }
+.badge.adopt { color: var(--s2); border-color: var(--s2); }
+.meta { font-size: 12px; color: var(--ink-mut); margin: 1px 0 10px; }
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.card { background: var(--surface-1); border: 1px solid var(--ring);
+  border-radius: 10px; padding: 12px 14px; }
+.card h3 { font-size: 12.5px; margin: 0 0 8px; font-weight: 600; color: var(--ink-2); }
+.bar-row { display: grid; grid-template-columns: 108px 1fr 64px; align-items: center;
+  gap: 8px; margin: 5px 0; font-size: 12px; }
+.bar-row .lb { color: var(--ink-2); text-align: right;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .lb b { color: var(--ink-1); }
+.bar-row .val { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: 600; }
+.track { position: relative; height: 14px; }
+.track .zero { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--axis); }
+.track .bar { position: absolute; top: 2px; height: 10px; border-radius: 0 4px 4px 0; }
+.track .bar.negv { border-radius: 4px 0 0 4px; }
+.legend { display: flex; gap: 12px; font-size: 11.5px; color: var(--ink-2); margin: 0 0 6px; }
+.legend .key { display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+  vertical-align: -1px; margin-right: 4px; }
+.grp { margin: 7px 0 9px; }
+.grp .gt { font-size: 11px; color: var(--ink-mut); margin-bottom: 2px; }
+.fn { font-size: 11px; color: var(--ink-mut); margin-top: 8px; }
+a { color: var(--s1); }
+</style>
+<div class="viz-root">
+<h1>백테스트·소급 검증 결과</h1>
+<p class="sub">진단 전용 — 판정 기준은 전부 사전 고정(결과 보고 튜닝 금지), 신호일 검증은 5종(1·6·11·16·마지막 거래일) 교차.
+절대 수치보다 변형 간 상대 비교가 유효합니다. 원문: 레포 reports/*.md</p>
+<div class="nav"><a href="./index.html">거시지표</a><a href="./positions.html">모의 보유 매도지표</a><span class="here">백테스트 결과</span></div>
+
+<section id="model">
+<h2>① 모델 비교 — 3모델 워크포워드<span class="badge adopt">catboost 채택</span></h2>
+<div class="meta">2023-07~2026-07 · 월 리밸런스 top20 균등 · T+1 종가 진입 · 비용 반영(수수료+거래세) ·
+선정 규칙(사전 고정): rank IC 순위 + Sharpe 순위 합 최소 → 1회 확정</div>
+<div class="row">
+  <div class="card"><h3>rank IC 평균 (종목 선택력)</h3><div id="m-ic"></div></div>
+  <div class="card"><h3>Sharpe</h3><div id="m-sh"></div></div>
+  <div class="card"><h3>MDD (최대 낙폭)</h3><div id="m-mdd"></div></div>
+</div>
+<div class="fn">해석: 모델은 유니버스(거래대금 상위 500) 안에서는 초과수익을 만들지만, 이 기간 유니버스 자체가
+KOSPI 대형주 랠리에 뒤졌다 — 벤치마크 열위의 주원인은 종목 선택력이 아니라 유니버스 구성.</div>
+</section>
+
+<section id="sector">
+<h2>② 섹터 — 로테이션 5년 &amp; 분류(L2) 필터<span class="badge">L2 필터 보류(2회)</span></h2>
+<div class="meta">로테이션: 2021-07~2026-07 · 상위 3섹터 지수 보유 가정 · 비용 0(한계 명시) /
+L2 필터: 신호일 5종 총수익, 판정 = 평균 총수익·Sharpe 모두 기존 이상 → 채택</div>
+<div class="row">
+  <div class="card"><h3>섹터 로테이션 5년 — 포트폴리오 vs KOSPI</h3><div id="s-rot"></div></div>
+  <div class="card"><h3>추천 필터: 기존 업종지수 vs 신규 L2 (신호일별 총수익)</h3>
+    <div class="legend"><span><span class="key" style="background:var(--s1)"></span>기존 상위5섹터</span>
+    <span><span class="key" style="background:var(--s2)"></span>신규 상위5 L2(교정 분류)</span></div>
+    <div id="s-tax"></div></div>
+</div>
+<div class="fn">L2 필터는 1차(7/14, +46.6%/0.52)·재검증(7/16 교정 분류, +22.9%/0.37) 모두 기존(+58.2%/0.59) 열세 →
+교체 보류, 메일에 참고 병기만. 분류 정확도와 버킷 RS의 필터 유효성은 별개(업종지수=시총가중 vs L2 버킷=동일가중).</div>
+</section>
+
+<section id="macro">
+<h2>③ 거시 — 피처 편입 &amp; 레짐 가드<span class="badge">피처 보류</span><span class="badge adopt">R2 가드 채택</span></h2>
+<div class="meta">피처 트라이얼: catboost 고정 A/B(7 vs 7+10피처), 판정 = IC 개선 AND Sharpe 비열화 /
+레짐 가드: 신호일 5종, 판정 = 평균 Sharpe ≥ BASE AND MDD 축소 (발동 0이면 판정 불가)</div>
+<div class="row">
+  <div class="card"><h3>피처 트라이얼 A/B</h3>
+    <div class="legend"><span><span class="key" style="background:var(--s1)"></span>A: 7피처</span>
+    <span><span class="key" style="background:var(--s2)"></span>B: +거시 10피처</span></div>
+    <div id="g-ab"></div></div>
+  <div class="card"><h3>레짐 가드 — BASE vs R2(VIX z&gt;+1 신규매수 중단)</h3>
+    <div class="legend"><span><span class="key" style="background:var(--s1)"></span>BASE(전체 풀)</span>
+    <span><span class="key" style="background:var(--s2)"></span>R2 가드</span></div>
+    <div id="g-regime"></div></div>
+</div>
+<div class="fn">거시 피처는 IC는 악화, Sharpe는 개선 — 수급과 정반대(거시는 "무엇을"이 아니라 "언제"에 기여) →
+피처 대신 R2 변동성 가드만 라이브 연결(평균 Sharpe -0.06→+0.05, MDD -46.0→-42.8%).
+R1(신용) -0.21로 보류, R3(경기)는 발동 0으로 판정 불가.</div>
+</section>
+
+<section id="flow">
+<h2>④ 수급 — 외인·기관 순매수 피처<span class="badge">편입 보류</span></h2>
+<div class="meta">catboost 고정 A/B(7 vs +frgn_net_20d·inst_net_20d) · 판정 = IC 개선 AND Sharpe 비열화 ·
+수급 데이터는 2021-04부터(초기 학습창 결측 한계)</div>
+<div class="row">
+  <div class="card"><h3>피처 트라이얼 A/B</h3>
+    <div class="legend"><span><span class="key" style="background:var(--s1)"></span>A: 7피처</span>
+    <span><span class="key" style="background:var(--s2)"></span>B: +수급 2피처</span></div>
+    <div id="f-ab"></div></div>
+  <div class="card"><h3>연도별 rank IC 차 (B − A)</h3><div id="f-yr"></div>
+    <div class="fn">최근 2년(2025~)은 개선 — 편입은 보류하되 후속 재평가 근거로 기록.</div></div>
+  <div class="card"><h3>B 피처 중요도 (catboost)</h3><div id="f-imp"></div></div>
+</div>
+<div class="fn">IC는 개선(+0.0083)됐지만 Sharpe 0.20→0.08 열화 — 사전 고정 기준(둘 다 충족) 미달로 보류.</div>
+</section>
+
+<p class="fn">공통 한계: 단일 이력 1회 실험(통계적 유의성 아님) · 슬리피지 0·종가 체결 가정 ·
+섹터 로테이션은 지수 직접 보유 가정(비용 0). 규칙이 소급 검증에서 뒤집히면 되돌린다(지정예고 제외 사례).</p>
+</div>
+<script>
+function bars(el, items, opts = {}) {
+  // items: [{label, value, color?, strong?, dim?, fmt?}] — 수평 막대, 0 기준 양방향
+  const vals = items.map(i => i.value);
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  const span = hi - lo || 1;
+  const root = document.getElementById(el);
+  for (const it of items) {
+    const row = document.createElement("div"); row.className = "bar-row";
+    const lb = document.createElement("span"); lb.className = "lb";
+    if (it.strong) { const b = document.createElement("b"); b.textContent = it.label; lb.appendChild(b); }
+    else lb.textContent = it.label;
+    const track = document.createElement("div"); track.className = "track";
+    const zero = document.createElement("div"); zero.className = "zero";
+    zero.style.left = `${(-lo) / span * 100}%`; track.appendChild(zero);
+    const bar = document.createElement("div");
+    bar.className = "bar" + (it.value < 0 ? " negv" : "");
+    const w = Math.abs(it.value) / span * 100;
+    bar.style.width = `${Math.max(w, 0.5)}%`;
+    bar.style.left = `${((it.value < 0 ? it.value : 0) - lo) / span * 100}%`;
+    bar.style.background = it.color || "var(--s1)";
+    if (it.dim) bar.style.opacity = "0.45";
+    bar.title = `${it.label}: ${it.fmt ?? it.value}`;
+    track.appendChild(bar);
+    const val = document.createElement("span"); val.className = "val";
+    val.textContent = it.fmt ?? it.value;
+    row.appendChild(lb); row.appendChild(track); row.appendChild(val);
+    root.appendChild(row);
+  }
+}
+function groups(el, groupsData, colors, perGroup = false) {
+  // groupsData: [{title, items:[{label, value, fmt}]}] — 그룹당 시리즈 순서 고정.
+  // perGroup: 그룹마다 단위가 다르면(IC vs MDD) 그룹별 스케일 — 그룹 간 길이 비교 불가 명시.
+  const root = document.getElementById(el);
+  const all = groupsData.flatMap(g => g.items.map(i => i.value));
+  let lo = Math.min(0, ...all), hi = Math.max(0, ...all), span = hi - lo || 1;
+  for (const g of groupsData) {
+    if (perGroup) {
+      const gv = g.items.map(i => i.value);
+      lo = Math.min(0, ...gv); hi = Math.max(0, ...gv); span = hi - lo || 1;
+    }
+    const box = document.createElement("div"); box.className = "grp";
+    const t = document.createElement("div"); t.className = "gt"; t.textContent = g.title;
+    box.appendChild(t);
+    g.items.forEach((it, k) => {
+      const row = document.createElement("div"); row.className = "bar-row";
+      row.style.gridTemplateColumns = "1fr 64px"; row.style.margin = "2px 0";
+      const track = document.createElement("div"); track.className = "track";
+      const zero = document.createElement("div"); zero.className = "zero";
+      zero.style.left = `${(-lo) / span * 100}%`; track.appendChild(zero);
+      const bar = document.createElement("div");
+      bar.className = "bar" + (it.value < 0 ? " negv" : "");
+      bar.style.width = `${Math.max(Math.abs(it.value) / span * 100, 0.5)}%`;
+      bar.style.left = `${((it.value < 0 ? it.value : 0) - lo) / span * 100}%`;
+      bar.style.background = colors[k];
+      bar.title = `${g.title} · ${it.label}: ${it.fmt}`;
+      track.appendChild(bar);
+      const val = document.createElement("span"); val.className = "val";
+      val.textContent = it.fmt;
+      row.appendChild(track); row.appendChild(val);
+      box.appendChild(row);
+    });
+    root.appendChild(box);
+  }
+}
+const P = v => `${v > 0 ? "+" : ""}${v}%`;
+
+// ① 모델 비교
+bars("m-ic", [
+  {label: "catboost ★", value: 0.1100, strong: true, fmt: "0.110"},
+  {label: "lightgbm", value: 0.0791, fmt: "0.079"},
+  {label: "xgboost", value: 0.0770, fmt: "0.077"},
+]);
+bars("m-sh", [
+  {label: "catboost ★", value: 0.20, strong: true, fmt: "0.20"},
+  {label: "lightgbm", value: 0.18, fmt: "0.18"},
+  {label: "xgboost", value: -0.16, fmt: "-0.16"},
+  {label: "유니버스 균등", value: 0.09, dim: true, fmt: "0.09"},
+  {label: "KOSPI", value: 1.40, dim: true, fmt: "1.40"},
+]);
+bars("m-mdd", [
+  {label: "catboost ★", value: -44.9, strong: true, fmt: "-44.9%"},
+  {label: "lightgbm", value: -48.3, fmt: "-48.3%"},
+  {label: "xgboost", value: -61.3, fmt: "-61.3%"},
+  {label: "유니버스 균등", value: -35.6, dim: true, fmt: "-35.6%"},
+  {label: "KOSPI", value: -20.7, dim: true, fmt: "-20.7%"},
+]);
+
+// ② 섹터
+bars("s-rot", [
+  {label: "총수익 — 포트", value: 62.97, fmt: "+63.0%"},
+  {label: "총수익 — KOSPI", value: 133.03, dim: true, fmt: "+133.0%"},
+  {label: "CAGR — 포트", value: 10.59, fmt: "+10.6%"},
+  {label: "CAGR — KOSPI", value: 19.04, dim: true, fmt: "+19.0%"},
+  {label: "MDD — 포트", value: -47.99, fmt: "-48.0%"},
+  {label: "MDD — KOSPI", value: -34.79, dim: true, fmt: "-34.8%"},
+]);
+groups("s-tax", [
+  {title: "신호일 1번째(운영)", items: [{label: "기존", value: 104.1, fmt: "+104.1%"}, {label: "신규L2", value: 16.1, fmt: "+16.1%"}]},
+  {title: "6번째", items: [{label: "기존", value: -5.6, fmt: "-5.6%"}, {label: "신규L2", value: 27.5, fmt: "+27.5%"}]},
+  {title: "11번째", items: [{label: "기존", value: 66.8, fmt: "+66.8%"}, {label: "신규L2", value: -4.0, fmt: "-4.0%"}]},
+  {title: "16번째", items: [{label: "기존", value: 52.4, fmt: "+52.4%"}, {label: "신규L2", value: 8.3, fmt: "+8.3%"}]},
+  {title: "마지막", items: [{label: "기존", value: 73.3, fmt: "+73.3%"}, {label: "신규L2", value: 66.7, fmt: "+66.7%"}]},
+  {title: "평균 (판정 대상)", items: [{label: "기존", value: 58.2, fmt: "+58.2%"}, {label: "신규L2", value: 22.9, fmt: "+22.9%"}]},
+], ["var(--s1)", "var(--s2)"]);
+
+// ③ 거시
+groups("g-ab", [
+  {title: "rank IC 평균", items: [{label: "A", value: 0.1100, fmt: "0.110"}, {label: "B", value: 0.1024, fmt: "0.102"}]},
+  {title: "Sharpe", items: [{label: "A", value: 0.20, fmt: "0.20"}, {label: "B", value: 0.25, fmt: "0.25"}]},
+  {title: "총수익 (%)", items: [{label: "A", value: -1.5, fmt: "-1.5%"}, {label: "B", value: 4.9, fmt: "+4.9%"}]},
+  {title: "MDD (%)", items: [{label: "A", value: -44.9, fmt: "-44.9%"}, {label: "B", value: -50.6, fmt: "-50.6%"}]},
+], ["var(--s1)", "var(--s2)"], true);
+groups("g-regime", [
+  {title: "신호일 1번째(운영)", items: [{label: "BASE", value: 4.4, fmt: "+4.4%"}, {label: "R2", value: -10.9, fmt: "-10.9%"}]},
+  {title: "6번째", items: [{label: "BASE", value: -49.6, fmt: "-49.6%"}, {label: "R2", value: -23.3, fmt: "-23.3%"}]},
+  {title: "11번째", items: [{label: "BASE", value: -10.5, fmt: "-10.5%"}, {label: "R2", value: -11.2, fmt: "-11.2%"}]},
+  {title: "16번째", items: [{label: "BASE", value: -38.9, fmt: "-38.9%"}, {label: "R2", value: -37.1, fmt: "-37.1%"}]},
+  {title: "마지막", items: [{label: "BASE", value: -13.4, fmt: "-13.4%"}, {label: "R2", value: 14.1, fmt: "+14.1%"}]},
+], ["var(--s1)", "var(--s2)"]);
+
+// ④ 수급
+groups("f-ab", [
+  {title: "rank IC 평균", items: [{label: "A", value: 0.1100, fmt: "0.110"}, {label: "B", value: 0.1183, fmt: "0.118"}]},
+  {title: "Sharpe", items: [{label: "A", value: 0.20, fmt: "0.20"}, {label: "B", value: 0.08, fmt: "0.08"}]},
+  {title: "총수익 (%)", items: [{label: "A", value: -1.5, fmt: "-1.5%"}, {label: "B", value: -15.0, fmt: "-15.0%"}]},
+  {title: "MDD (%)", items: [{label: "A", value: -44.9, fmt: "-44.9%"}, {label: "B", value: -45.4, fmt: "-45.4%"}]},
+], ["var(--s1)", "var(--s2)"], true);
+bars("f-yr", [
+  {label: "2023", value: -0.0030, fmt: "-0.003"},
+  {label: "2024", value: -0.0061, fmt: "-0.006"},
+  {label: "2025", value: 0.0255, fmt: "+0.026"},
+  {label: "2026", value: 0.0141, fmt: "+0.014"},
+].map(i => ({...i, color: i.value < 0 ? "var(--neg)" : "var(--s1)"})));
+bars("f-imp", [
+  {label: "ret_20d", value: 14.00, fmt: "14.0"},
+  {label: "ret_60d", value: 13.99, fmt: "14.0"},
+  {label: "vol_20d", value: 13.32, fmt: "13.3"},
+  {label: "ret_5d", value: 12.84, fmt: "12.8"},
+  {label: "frgn_net_20d", value: 11.99, strong: true, color: "var(--s2)", fmt: "12.0"},
+  {label: "turnover_chg", value: 11.74, fmt: "11.7"},
+  {label: "inst_net_20d", value: 9.71, strong: true, color: "var(--s2)", fmt: "9.7"},
+  {label: "roe_ttm", value: 7.50, fmt: "7.5"},
+  {label: "per_ttm", value: 4.91, fmt: "4.9"},
+]);
+</script>
