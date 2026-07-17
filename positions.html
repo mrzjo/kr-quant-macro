@@ -66,9 +66,10 @@ summary { font-size: 11px; color: var(--ink-mut); cursor: pointer; }
 </style>
 <div class="viz-root">
 <h1>모의 보유 매도지표</h1>
-<p class="sub">기준 2026-07-17 · <b>모의투자 계좌</b> — 매도 규칙(C안): ①종가 ≥ 볼린저 상단 = 목표 도달
-②종가 ≤ 하단 = 손절 ③편입 후 만료일 경과. 볼린저 파라미터·만료일은 페이지 하단 데이터 기준 표기.
-백테스트 미검증 휴리스틱입니다.</p>
+<p class="sub">기준 2026-07-17 · <b>모의투자 계좌</b> — 매도 규칙: <b>A안(월간 목록 교체, 2026-07-16 전환)</b>
+= 다음 신호일 추천 목록에 없는 보유 종목 매도(백테스트 채택 — exit_rule_study).
+차트의 볼린저 상단(목표)/하단(손절)·만료일은 <b>참고 지표</b>입니다(구 C안·실계좌 매도 참고와 동일 휴리스틱,
+자동 매도에는 더 이상 사용 안 함 — 페이지 하단 데이터 기준 표기).</p>
 <div class="nav"><a href="./index.html">거시지표</a><span class="here">모의 보유 매도지표</span><a href="./backtests.html">백테스트 결과</a><a href="./sectors.html">섹터 분류</a></div>
 <div class="grid" id="grid"></div>
 </div>
