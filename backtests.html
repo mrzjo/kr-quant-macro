@@ -148,6 +148,19 @@ U0 열위의 주원인이 유니버스 구성이라는 모델 비교(①)의 해
 (패널·추천·뉴스 수집 범위 파급).</div>
 </section>
 
+<section id="exit">
+<h2>⑥ 청산 규칙 — 매도 규칙 5종 소급 검증 (2026-07-14)<span class="badge adopt">A 채택 → 07-16 라이브 전환</span></h2>
+<div class="meta">신호일 5종 교차 · 비용 반영(수수료+거래세) · 판정(사전 고정) = 평균 Sharpe 1위(동률 시 MDD) ·
+후보: A 월간 목록 교체 / E1 볼린저 상단·하단+만료28일(구 C안) / E2 손절만 / E3 트레일링 10% / E4 상단+트레일링</div>
+<div class="row">
+  <div class="card"><h3>평균 Sharpe (신호일 5종)</h3><div id="e-sh"></div></div>
+  <div class="card"><h3>평균 보유일</h3><div id="e-hold"></div></div>
+</div>
+<div class="fn">개별 청산(볼린저·트레일링) 전 후보가 A(모델 20일 지평과 정합하는 월간 교체)에 열위 —
+소형·고변동 유니버스에서 반등을 놓치고 회전 비용만 쌓임. 이 판정으로 2026-07-16 모의 매도를
+C(E1)→A로 전환(가상 C는 섀도우 대조군으로 계속 축적).</div>
+</section>
+
 <p class="fn">공통 한계: 단일 이력 1회 실험(통계적 유의성 아님) · 슬리피지 0·종가 체결 가정 ·
 섹터 로테이션은 지수 직접 보유 가정(비용 0). 규칙이 소급 검증에서 뒤집히면 되돌린다(지정예고 제외 사례).</p>
 </div>
@@ -303,6 +316,22 @@ bars("u-ic", [
   {label: "U1 시총500 ★", value: 0.0177, strong: true, color: "var(--s2)", fmt: "0.018"},
   {label: "U2 시총∪거래대금", value: 0.0792, fmt: "0.079"},
   {label: "U3 KOSPI200+KQ150", value: 0.0101, fmt: "0.010"},
+]);
+
+// ⑥ 청산 규칙
+bars("e-sh", [
+  {label: "A 목록 교체 ★", value: -0.11, strong: true, color: "var(--s2)", fmt: "-0.11"},
+  {label: "E3 트레일링10%", value: -0.33, fmt: "-0.33"},
+  {label: "E1 볼린저(구 C안)", value: -0.36, fmt: "-0.36"},
+  {label: "E2 손절만", value: -0.43, fmt: "-0.43"},
+  {label: "E4 상단+트레일링", value: -0.43, fmt: "-0.43"},
+]);
+bars("e-hold", [
+  {label: "A 목록 교체 ★", value: 22, strong: true, color: "var(--s2)", fmt: "22일"},
+  {label: "E3 트레일링10%", value: 13, fmt: "13일"},
+  {label: "E1 볼린저(구 C안)", value: 12, fmt: "12일"},
+  {label: "E2 손절만", value: 15, fmt: "15일"},
+  {label: "E4 상단+트레일링", value: 13, fmt: "13일"},
 ]);
 
 bars("f-imp", [
