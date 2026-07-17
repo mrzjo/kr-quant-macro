@@ -102,6 +102,30 @@ T+1 종가 진입 · 비용 반영(수수료+거래세) · 선정 규칙(사전 
 </div>
 <div class="fn">해석: 모델은 유니버스(거래대금 상위 500) 안에서는 초과수익을 만들지만, 이 기간 유니버스 자체가
 KOSPI 대형주 랠리에 뒤졌다 — 벤치마크 열위의 주원인은 종목 선택력이 아니라 유니버스 구성.</div>
+
+<h2 style="margin-top:18px">①-1 모델 15년 확장 — 생존편향-프리 워크포워드 (07-18)<span class="badge">관찰(판정 없음)</span></h2>
+<div class="meta">배경: 15년 소급 수집(상폐 788종목 포함) 위에서 동일 모델 파이프라인을 최장 구간으로 재현 —
+패널 2016-04~, 예측 2018-04~2026-07(8.3년, 현행 대비 5년 연장) · 신호일 5종 평균 · top20 균등 ·
+청산 A(월간 교체) · 수수료+거래세 반영 · 유니버스는 시점별 소급 스냅샷(상폐 포함 PIT) ·
+감자 미수정 점프 정화 적용. 질문 = "모델의 선택력·초과수익이 다른 레짐에서도 유지되는가?"</div>
+<div class="row">
+  <div class="card"><h3>연도별 모델 수익 — U1(시총500) vs KOSPI</h3>
+    <div class="legend"><span><span class="key" style="background:var(--s1)"></span>모델 top20 (U1)</span>
+    <span><span class="key" style="background:var(--axis)"></span>KOSPI</span></div>
+    <div id="m15-u1"></div></div>
+  <div class="card"><h3>연도별 rank IC — U0 vs U1</h3>
+    <div class="legend"><span><span class="key" style="background:var(--s1)"></span>U0 거래대금500</span>
+    <span><span class="key" style="background:var(--s2)"></span>U1 시총500</span></div>
+    <div id="m15-ic"></div>
+    <div class="fn">U0의 IC는 8.3년 매해 양수(평균 0.063) — 소형주에선 선택력이 구조적으로 실재.
+    U1은 평균 0.012로 0 부근 해가 다수 — 대형주에선 모델 기여가 얇다(⑤의 IC 희석 관찰의 장기 확인).</div></div>
+</div>
+<div class="fn">전기간(비용 반영): U1 <b>−15.7%</b> · U0 <b>−67.1%</b> vs KOSPI +179.1% — 생존편향을 걷어내고
+기간을 늘리면 절대 성과는 시장 대비 크게 열위. 열위의 축은 (a) 유니버스 베타(U0 침몰·U1도 초대형 랠리 미추종),
+(b) 신호일 운(8.3년 누적 폭 ~92%p — 트랜치 분할 백로그의 근거), (c) 거래비용 누적. 최근 3년 스터디(⑤ U1 +31.9%)가
+호황 구간 특성을 크게 반영했음을 보여주는 결과로, 라이브 변경 제안 없음 — 다음 개선 우선순위(대형주 선택력·
+트랜치 분할) 판단의 기초 자료. 한계: 상폐 종목 마지막 체결가 청산 가정, 2018-04 시작(직후 약세장) 시작점 효과.
+원문: reports/model_15y_study.md</div>
 </section>
 
 <section id="sector">
@@ -310,6 +334,30 @@ bars("m-mdd", [
   {label: "유니버스 균등", value: -35.6, dim: true, fmt: "-35.6%"},
   {label: "KOSPI", value: -20.7, dim: true, fmt: "-20.7%"},
 ]);
+
+// ①-1 모델 15년 확장 (reports/model_15y_study.md — 5오프셋 평균)
+groups("m15-u1", [
+  {title: "2018(4월~)", items: [{label: "모델", value: -17.2, fmt: "-17.2%"}, {label: "KOSPI", value: -16.5, fmt: "-16.5%"}]},
+  {title: "2019", items: [{label: "모델", value: 1.4, fmt: "+1.4%"}, {label: "KOSPI", value: 9.3, fmt: "+9.3%"}]},
+  {title: "2020 (코로나 V)", items: [{label: "모델", value: 40.3, fmt: "+40.3%"}, {label: "KOSPI", value: 32.1, fmt: "+32.1%"}]},
+  {title: "2021", items: [{label: "모델", value: -3.4, fmt: "-3.4%"}, {label: "KOSPI", value: 1.1, fmt: "+1.1%"}]},
+  {title: "2022 (약세장)", items: [{label: "모델", value: -32.5, fmt: "-32.5%"}, {label: "KOSPI", value: -25.2, fmt: "-25.2%"}]},
+  {title: "2023", items: [{label: "모델", value: -10.9, fmt: "-10.9%"}, {label: "KOSPI", value: 19.3, fmt: "+19.3%"}]},
+  {title: "2024", items: [{label: "모델", value: -20.7, fmt: "-20.7%"}, {label: "KOSPI", value: -10.1, fmt: "-10.1%"}]},
+  {title: "2025 (강세)", items: [{label: "모델", value: 44.4, fmt: "+44.4%"}, {label: "KOSPI", value: 75.7, fmt: "+75.7%"}]},
+  {title: "2026~7/16", items: [{label: "모델", value: 4.5, fmt: "+4.5%"}, {label: "KOSPI", value: 58.3, fmt: "+58.3%"}]},
+], ["var(--s1)", "var(--axis)"]);
+groups("m15-ic", [
+  {title: "2018", items: [{label: "U0", value: 0.085, fmt: "0.085"}, {label: "U1", value: 0.029, fmt: "0.029"}]},
+  {title: "2019", items: [{label: "U0", value: 0.055, fmt: "0.055"}, {label: "U1", value: 0.027, fmt: "0.027"}]},
+  {title: "2020", items: [{label: "U0", value: 0.029, fmt: "0.029"}, {label: "U1", value: -0.006, fmt: "-0.006"}]},
+  {title: "2021", items: [{label: "U0", value: 0.039, fmt: "0.039"}, {label: "U1", value: -0.002, fmt: "-0.002"}]},
+  {title: "2022", items: [{label: "U0", value: 0.067, fmt: "0.067"}, {label: "U1", value: 0.029, fmt: "0.029"}]},
+  {title: "2023", items: [{label: "U0", value: 0.048, fmt: "0.048"}, {label: "U1", value: -0.010, fmt: "-0.010"}]},
+  {title: "2024", items: [{label: "U0", value: 0.077, fmt: "0.077"}, {label: "U1", value: 0.007, fmt: "0.007"}]},
+  {title: "2025", items: [{label: "U0", value: 0.088, fmt: "0.088"}, {label: "U1", value: 0.027, fmt: "0.027"}]},
+  {title: "2026", items: [{label: "U0", value: 0.106, fmt: "0.106"}, {label: "U1", value: 0.008, fmt: "0.008"}]},
+], ["var(--s1)", "var(--s2)"]);
 
 // ② 섹터
 bars("s-rot", [
