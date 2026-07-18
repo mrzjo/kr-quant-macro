@@ -318,6 +318,11 @@ T+1·비용·감자 가드, 신호일 5종 교차. <b>배당 현금흐름 미반
     상승장 11년은 열위 — 누적 곡선의 우위는 "덜 잃어서 복리가 덜 깨진" 결과다. 즉 <b>알파가 아니라
     방어(저베타) 슬리브</b>이며 최근 3년 열위도 예외가 아니다. <b>단 라벨은 사후적</b>이라
     "하락장에만 켠다"는 운용의 근거로는 쓸 수 없다(사전 판정 신호가 따로 필요).</div></div>
+  <div class="card"><h3>감배 예측 필터 A/B — 보류(3기준 중 2충족)</h3><div id="d-cut"></div>
+    <div class="fn">고배당 top20의 <b>다음 해 감배율이 45.5%</b>(시장 전체 18%의 2.5배) — value trap이
+    구조적으로 섞인다. 감배 분류기(AUC 0.655, 연도 워크포워드)로 상위 20% 확률 종목을 빼자
+    감배율 29.5%·하락장 방어 개선까지는 됐지만 <b>15년 총수익이 −67%p</b> 깎여 사전 고정 기준
+    ③에 걸렸다. 상승 연도 수익을 함께 잃은 것(2021 +35.0%→+21.8%)이 원인.</div></div>
   <div class="card"><h3>모델 피처 주입 A/B (패널) — 보류</h3>
     <div class="legend"><span><span class="key" style="background:var(--s1)"></span>A: 현행 12피처</span>
     <span><span class="key" style="background:var(--s2)"></span>B: +배당 2피처</span></div>
@@ -326,7 +331,7 @@ T+1·비용·감자 가드, 신호일 5종 교차. <b>배당 현금흐름 미반
     +0.001 개선·Sharpe는 0.08→0.07 열화로 기준 미달. 수급·밸류에 이은 <b>3연속 동일 패턴</b> —
     "단독 IC가 강한 저속 횡단면 신호는 20일 타깃 모델이 못 흡수한다"를 작업 가설로 채택.</div></div>
 </div>
-<div class="fn">원문: reports/dividend_screen_study_full.md · dividend_regime_study.md · dividend_feature_trial_u1.md.
+<div class="fn">원문: reports/dividend_screen_study_full.md · dividend_regime_study.md · dividend_feature_trial_u1.md · dividend_cut_study.md · dividend_cut_filter_ab.md.
 라이브 변경 없음(관찰). 리뷰 교훈: 무배당 동점(유니버스 40~50%)을 2차 키 없이 정렬하면 매달 같은 고정
 바스켓이 뽑혀 대조군이 +108.7%로 왜곡됐다 — (신호일, 티커) 해시로 동점을 깨 −13.8%로 교정.</div>
 </section>
@@ -616,6 +621,11 @@ bars("d-regime", [
   {label: "대형·가치 우위 (7년)", value: -19.1, fmt: "-19.1% (43%)"},
   {label: "고변동 (7년)", value: -23.2, fmt: "-23.2% (43%)"},
   {label: "상승장 (11년)", value: -39.5, fmt: "-39.5% (36%)"},
+]);
+bars("d-cut", [
+  {label: "감배율(낮을수록 좋음)", value: -16.0, strong: true, color: "var(--s2)", fmt: "45.5% → 29.5%"},
+  {label: "하락장 복리 초과", value: 13.7, fmt: "+141.8% → +155.5%"},
+  {label: "15년 총수익", value: -66.7, fmt: "+343.5% → +276.8%"},
 ]);
 groups("d-feat", [
   {title: "rank IC 평균", items: [{label: "A", value: 0.0311, fmt: "0.031"}, {label: "B", value: 0.0321, fmt: "0.032"}]},
