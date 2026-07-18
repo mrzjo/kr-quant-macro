@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <meta charset="utf-8">
 <title>kr-quant 피처 현황</title>
 <style>
@@ -58,9 +59,10 @@
 .bar-row .val { flex: 0 0 84px; text-align: right; font-variant-numeric: tabular-nums;
   color: var(--ink-1); }
 .bar-row .bar.negv { background: var(--neg) !important; }
-/* color 명시 필수: 이 페이지들은 DOCTYPE이 없어 쿼크 모드로 렌더되고, 쿼크 모드에서
-   <table>은 조상의 color를 상속하지 않고 검정으로 초기화된다 — 다크 배경에 검은 글자가
-   된다(2026-07-18 실측). 기존 페이지들이 무사한 것도 .tbl th/td에 color를 명시했기 때문. */
+/* color 명시: 원래는 쿼크 모드 대응이었다 — DOCTYPE이 없던 시절 <table>이 조상의 color를
+   상속하지 않고 검정으로 초기화돼 다크 배경에 검은 글자가 됐다(2026-07-18 실측).
+   같은 날 5개 페이지에 <!DOCTYPE html>을 넣어 표준 모드로 전환했고 상속은 정상이지만,
+   방어적으로 명시를 유지한다(표준 모드에서도 무해). */
 table { border-collapse: collapse; width: 100%; font-size: 12px; margin-top: 4px;
   color: var(--ink-1); }
 th, td { padding: 5px 7px; border-bottom: 1px solid var(--grid); text-align: right;
