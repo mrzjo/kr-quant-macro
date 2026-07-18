@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>kr-quant 용어 사전</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --surface-1: #fcfcfb; --page: #f9f9f7;
+  --ink-1: #0b0b0b; --ink-2: #52514e; --ink-mut: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #17876a; --neg: #c0472f; --warn: #b8860b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #23a383; --neg: #e05c3f; --warn: #d4a017;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --surface-1: #1a1a19; --page: #0d0d0d;
+  --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #23a383; --neg: #e05c3f; --warn: #d4a017;
+}
+.viz-root {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page); color: var(--ink-1);
+  margin: 0 auto; padding: 20px; min-height: 100vh; box-sizing: border-box;
+  max-width: 1080px; line-height: 1.6;
+}
+.viz-root h1 { font-size: 19px; margin: 0 0 2px; }
+.sub { color: var(--ink-2); font-size: 12.5px; margin: 0 0 6px; }
+.nav { font-size: 13px; margin: 0 0 14px; }
+.nav a { color: var(--s1); text-decoration: none; margin-right: 14px; }
+.nav .here { color: var(--ink-1); font-weight: 700; margin-right: 14px; }
+.tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 0 0 14px; }
+.tools input {
+  font: inherit; font-size: 13px; padding: 7px 12px; width: min(320px, 100%);
+  border: 1px solid var(--axis); border-radius: 7px; box-sizing: border-box;
+  background: var(--surface-1); color: var(--ink-1);
+}
+.chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.chip { font-size: 12px; padding: 4px 11px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--ring); color: var(--ink-2); background: var(--surface-1);
+  user-select: none; }
+.chip.on { color: var(--page); background: var(--ink-1); border-color: var(--ink-1); }
+.cat { margin: 22px 0 8px; font-size: 15px; font-weight: 700; }
+.cat .n { color: var(--ink-mut); font-size: 12px; font-weight: 400; margin-left: 6px; }
+.term { background: var(--surface-1); border: 1px solid var(--ring); border-radius: 10px;
+  padding: 11px 14px; margin: 0 0 8px; }
+.term h3 { font-size: 13.5px; margin: 0 0 4px; }
+.term h3 .en { color: var(--ink-mut); font-weight: 400; font-size: 12px; margin-left: 6px; }
+.term p { margin: 0 0 5px; font-size: 13px; color: var(--ink-1); }
+.term .why { font-size: 12.5px; color: var(--ink-2); margin: 0; }
+.term .why b { color: var(--ink-1); }
+.term .fact { display: block; margin-top: 6px; padding: 6px 10px; border-radius: 7px;
+  background: var(--page); border: 1px solid var(--grid); font-size: 12px; color: var(--ink-2); }
+.term .fact b { color: var(--ink-1); }
+.hide { display: none !important; }
+.nores { color: var(--ink-mut); font-size: 13px; margin: 20px 0; display: none; }
+.foot { color: var(--ink-mut); font-size: 11.5px; margin-top: 26px; }
+</style>
+<div class="viz-root">
+<h1>용어 사전 — 이 시스템을 읽는 법</h1>
+<p class="sub">리포트·메일·페이지에 나오는 용어를 정의 + <b>왜 중요한지</b> + <b>우리 데이터의 실측치</b>로 설명합니다.
+일반 금융 사전이 아니라 이 프로젝트 기준의 설명입니다 · 검색은 용어·설명 전체 매치</p>
+<div class="nav"><a href="./index.html">거시지표</a><a href="./positions.html">모의 보유 매도지표</a><a href="./backtests.html">백테스트 결과</a><a href="./sectors.html">섹터 분류</a><a href="./features.html">피처 현황</a><span class="here">용어 사전</span></div>
+
+<div class="tools">
+  <input id="q" type="search" placeholder="용어 검색 (예: IC, 트랜치, 감자)" aria-label="용어 검색">
+  <div class="chips" id="chips"></div>
+</div>
+<div id="list"></div>
+<div class="nores" id="nores">검색 결과 없음</div>
+<p class="foot" id="foot"></p>
+</div>
+<script>
+const TERMS = [
+// ─────────────────────────── 규율·방법론
+{c:"규율·방법론", t:"Point-in-time (PIT)", en:"시점 정합성", d:"모든 계산에 <b>그 시점에 실제로 관측 가능했던 데이터만</b> 쓰는 규율. 이 프로젝트의 절대 원칙 1번이다.",
+ w:"미래 정보가 한 칸이라도 섞이면 백테스트 성과는 전부 허구가 된다. 재무는 DART 공시접수일(rcept_dt) +1영업일 이후에만 유효하고, 이동평균·표준편차는 과거 방향으로만 계산한다.",
+ f:"실측: KRX가 공표하는 배당수익률은 <b>소급 갱신이 아니라 지연 반영</b>이다 — 삼성전자 FY2020 특별배당(2021-01-28 발표)이 지표에 반영된 건 2021-05-03."},
+{c:"규율·방법론", t:"룩어헤드", en:"look-ahead bias", d:"미래에만 알 수 있는 정보가 과거 시점 계산에 새어 들어가는 것.",
+ w:"가장 흔한 형태는 ①신호 당일 종가로 체결 가정 ②현재 섹터 분류·구성종목을 과거에 소급 ③지금 상장돼 있는 종목만으로 과거 유니버스 구성. 우리는 ①을 T+1 진입으로, ③을 시점별 스냅샷으로 막았고, ②는 완전히 못 막아 <b>한계로 명시</b>한다."},
+{c:"규율·방법론", t:"생존편향", en:"survivorship bias", d:"상장폐지된 종목이 데이터에서 빠져, 살아남은 종목만으로 과거를 평가하는 오류.",
+ w:"망한 회사를 빼고 계산하면 어떤 전략이든 좋아 보인다. 15년 백테스트는 상장폐지 788종목을 포함해 수집했다.",
+ f:"생존편향을 걷어내자 모델 15년 성과가 <b>U1 −15.7% / U0 −67.1%</b>로, 최근 3년만 볼 때(+31.9%)와 완전히 달라졌다."},
+{c:"규율·방법론", t:"사전 고정 판정", en:"pre-registered criteria", d:"채택/보류 기준을 <b>실험 전에</b> 정하고 결과를 본 뒤에는 바꾸지 않는 규칙.",
+ w:"결과를 보고 기준을 고르면 무엇이든 '검증'할 수 있다. 피처 트라이얼의 기준은 \"신호일 5종 평균 rank IC 개선 AND Sharpe 비열화\"로 고정돼 있다.",
+ f:"이 기준 때문에 수급·밸류·배당·재무 <b>4건이 연속 보류</b>됐다. 기준을 사후에 완화하지 않은 결과다."},
+{c:"규율·방법론", t:"신호일 5종 교차", en:"signal-day cross-check", d:"월 리밸런스 기준일을 매월 1·6·11·16·마지막 거래일 5가지로 바꿔 전부 돌린 뒤 평균으로 판단하는 방식.",
+ w:"단일 기준일 수치는 '날짜 운'에 오염된다. 이 프로젝트의 검증 표준이다.",
+ f:"실측: 같은 전략인데 기준일만 바꿨을 때 총수익이 <b>+4.4% ~ −49.6%</b>로 벌어졌고, 15년 누적으로는 폭이 ~92%p였다. 트랜치 5분할 도입의 직접 근거."},
+{c:"규율·방법론", t:"워크포워드", en:"walk-forward", d:"각 시점까지 관측된 데이터로만 학습해 그 다음 구간을 예측하고, 시간을 앞으로 굴리며 주기적으로 재학습하는 검증 방식.",
+ w:"전체 기간을 한꺼번에 학습해 같은 기간을 예측하면(in-sample) 성과가 부풀려진다. 우리 모델은 분기마다 재학습한다."},
+{c:"규율·방법론", t:"T+1 종가 진입", en:"", d:"신호가 난 다음 거래일 종가에 체결된다고 가정하는 것.",
+ w:"신호 당일 종가에 사는 가정은 종가를 보고 종가에 사는 셈이라 룩어헤드다. 실제 운용도 다음날 아침에 주문하므로 현실과도 맞다."},
+{c:"규율·방법론", t:"관찰 전용", en:"observational", d:"판정(채택/보류)을 내리지 않고 현상만 기록하는 스터디.",
+ w:"모든 분석이 의사결정을 낳아야 하는 건 아니다. 레짐 분해·15년 확장처럼 '무슨 일이 있었나'를 이해하는 작업은 관찰로 남기고, 규칙 변경은 별도 판정 절차를 거친다."},
+{c:"규율·방법론", t:"사후 라벨", en:"ex-post label", d:"그 시점에는 알 수 없고 지나고 나서야 붙일 수 있는 분류. 예: '2022년은 하락장'.",
+ w:"<b>귀속 분석에는 유효하지만 전략의 근거로는 쓸 수 없다.</b> \"하락장에만 켠다\"는 운용을 하려면 하락장을 사전에 판정하는 신호가 따로 필요하고, 그 신호의 오차가 우위를 갉아먹는다.",
+ f:"레짐 분해 페이지의 상승장/하락장·고변동/저변동 라벨이 전부 사후 라벨이다."},
+{c:"규율·방법론", t:"재현성", en:"reproducibility", d:"같은 날짜·같은 입력이면 언제 돌려도 같은 출력이 나오는 성질. 난수는 시드를 고정한다.",
+ w:"재현이 안 되면 어제의 판단을 오늘 검증할 수 없다.",
+ f:"실측 사고: 파생 수식을 고쳤는데 캐시 키가 피처 <b>이름</b>만 해싱해 낡은 예측이 재사용됐고, 그 결과 한 트라이얼의 1차 결론이 뒤집혔다. 이후 캐시 키에 '로직 버전'을 포함한다."},
+
+// ─────────────────────────── 성과 지표
+{c:"성과 지표", t:"rank IC", en:"rank information coefficient", d:"모델이 매긴 종목 <b>순위</b>와 실제 미래 수익률 순위의 상관계수(스피어만). 0이면 선택력 없음.",
+ w:"수익률 자체가 아니라 순위를 맞히는 능력이라, 시장 전체가 오르내리는 효과를 걷어내고 '종목을 고르는 실력'만 본다. 0.05 이상이면 꽤 유의미한 편.",
+ f:"현행 12피처 모델의 5신호일 평균 IC는 <b>0.031</b>. 유니버스별로 크게 달라 U0(거래대금 상위)는 0.063, U1(시총 상위)은 0.012다 — 대형주일수록 모델 기여가 얇다."},
+{c:"성과 지표", t:"단독 IC", en:"standalone IC", d:"피처 <b>하나만으로</b> 미래 수익 순위를 맞혔을 때의 rank IC.",
+ w:"개별 축의 방향과 세기를 본다. 음수는 '쓸모없다'가 아니라 '값이 낮을수록 수익이 좋았다'는 방향 정보다 — 모델은 부호를 알아서 쓴다.",
+ f:"실측 최고는 배당수익률 <b>+0.061</b>, 다음이 변동성 −0.084(절대값 기준)·ROE +0.035. 그런데 단독 IC가 높다고 모델에 넣어서 좋아지지는 않았다."},
+{c:"성과 지표", t:"Sharpe", en:"샤프 지수", d:"변동성 1단위당 수익(연환산, 무위험수익률 0 가정).",
+ w:"총수익이 같아도 출렁임이 크면 낮아진다. 실제로 들고 있을 수 있는 전략인지를 본다.",
+ f:"고배당 스크린 0.71 vs KOSPI 0.55(15년, 같은 창)."},
+{c:"성과 지표", t:"MDD", en:"maximum drawdown", d:"고점 대비 최악의 하락률. 최대 낙폭.",
+ w:"실제 운용에서 전략을 포기하게 만드는 건 평균 수익이 아니라 이 숫자다."},
+{c:"성과 지표", t:"초과수익", en:"excess return", d:"벤치마크(KOSPI) 대비 더 번 정도. 단위는 %p.",
+ w:"연도별 초과수익을 <b>산술 평균</b>하면 한 해의 큰 값이 전체를 좌우한다. 그래서 우리는 복리 기준을 함께 본다."},
+{c:"성과 지표", t:"복리 기준 초과", en:"compounded excess", d:"해당 연도들만 이어붙여 복리로 계산했을 때의 누적 배수 차.",
+ w:"산술 평균이 감추는 것을 드러낸다.",
+ f:"고배당 스크린의 연 평균 초과는 −0.4%p로 우위가 없어 보이지만, 복리로 나누면 <b>하락장 4년 +102.4% / 상승장 11년 −39.5%</b>로 성격이 분명해진다."},
+{c:"성과 지표", t:"승률", en:"hit rate", d:"초과수익이 양수였던 기간의 비율.",
+ w:"평균값 하나로는 '가끔 크게 이기는 전략'과 '자주 조금씩 이기는 전략'을 구분할 수 없다."},
+
+// ─────────────────────────── 모델·피처
+{c:"모델·피처", t:"패널", en:"panel", d:"(날짜 × 종목) 격자에 피처와 정답을 채운 표. 모델 학습의 입력.",
+ f:"라이브 패널은 30,497행 · 959종목 · 신호일 61개(2021-07~2026-07, 시총 상위 500 기준)."},
+{c:"모델·피처", t:"fwd20", en:"forward 20-day return", d:"그 시점부터 20거래일(약 1개월) 뒤까지의 수익률. 모델이 맞히려는 <b>정답</b>.",
+ w:"예측 대상이 20일이라는 건 이 시스템이 월 단위 리밸런스 전략이라는 뜻이다. 더 긴 호흡의 신호(밸류·배당)가 이 타깃과 잘 안 맞는 이유이기도 하다."},
+{c:"모델·피처", t:"피처", en:"feature", d:"모델에 넣는 설명 변수. 현재 12개(모멘텀 4·변동성 2·거래량 2·가격위치 2·재무 2).",
+ w:"피처 목록은 config에 고정돼 있고, 추가는 트라이얼 판정을 통과해야 한다."},
+{c:"모델·피처", t:"트라이얼 A/B", en:"", d:"현행 피처셋(A)과 후보 추가본(B)을 같은 조건으로 학습·백테스트해 비교하는 절차.",
+ f:"채택 1건(기술 5종), 보류 4건(거시·수급·밸류·배당·재무 파생)."},
+{c:"모델·피처", t:"catboost", en:"", d:"결정트리 기반 그래디언트 부스팅 모델. 3종 비교에서 1회 확정으로 선택됐다.",
+ w:"결측값(NaN)을 대체 없이 그대로 처리한다 — 적자 기업의 PER처럼 '없는 게 정보'인 경우에 유리하다."},
+{c:"모델·피처", t:"모델 중요도", en:"feature importance", d:"학습된 트리가 분할에 그 피처를 얼마나 썼는지의 비율.",
+ w:"<b>예측력과 동의어가 아니다.</b> 상관이 높은 피처끼리는 기여도를 나눠 가지므로, 중복 축이 있으면 개별 중요도는 낮게 나온다."},
+{c:"모델·피처", t:"결측", en:"missing / NaN", d:"값이 없는 칸. 우리는 채우지 않고 NaN으로 둔다.",
+ w:"평균으로 채우면 '적자 기업'이 '평균적 기업'으로 둔갑한다.",
+ f:"PER은 29.8%가 결측인데 대부분 적자 기업이다 — 구조적 결측이라 정상이다."},
+{c:"모델·피처", t:"IC↔Sharpe 괴리", en:"", d:"순위 상관(IC)은 좋아지는데 실현 성과(Sharpe)는 나빠지거나, 그 반대인 현상.",
+ w:"우리 트라이얼에서 반복 관측된 패턴이다. IC는 전 종목의 순위를 보지만 실제 수익은 <b>상위 20종목만</b>으로 나므로, 중하위권 순위가 좋아져도 돈은 안 된다.",
+ f:"수급·밸류·배당은 IC↑/Sharpe↓, 재무 파생은 IC↓/Sharpe 보합. 4건 모두 보류."},
+
+// ─────────────────────────── 유니버스·데이터
+{c:"유니버스·데이터", t:"유니버스", en:"universe", d:"매수 후보가 될 수 있는 종목 집합. 현재는 <b>시가총액 상위 500</b>(U1).",
+ w:"모델이 아무리 좋아도 유니버스 밖 종목은 못 산다. 성과의 상당 부분이 종목 선택이 아니라 유니버스 구성에서 나온다.",
+ f:"U0(거래대금 상위 500)는 IC가 높지만(0.063) 15년 총수익 −67.1%, U1은 IC가 낮아도(0.012) −15.7%. \"IC 있는 곳에 돈 없고, 돈 있는 곳에 IC 없다.\""},
+{c:"유니버스·데이터", t:"스냅샷", en:"snapshot", d:"그날 관측한 상태를 날짜별로 저장해 축적한 파일. 멤버십·계좌·경보·유니버스 등.",
+ w:"외부 API 상당수가 <b>현재 시점만</b> 알려주기 때문에, 과거를 알려면 매일 찍어서 쌓는 수밖에 없다. 오늘 안 찍으면 그날은 영구 결손이다.",
+ f:"파티션은 asof(직전 영업일)가 아니라 <b>수집일</b> 기준 — asof 기준으로 했다가 월요일 갱신분이 주말 파일에 막혀 결손이 난 사고가 있었다."},
+{c:"유니버스·데이터", t:"수정주가", en:"adjusted price", d:"액면분할·병합 등을 소급 반영해 연속성을 맞춘 가격.",
+ w:"수정이 안 된 구간이 섞이면 하루에 300배 오른 것처럼 보이는 가짜 점프가 생긴다."},
+{c:"유니버스·데이터", t:"감자 가드", en:"capital reduction guard", d:"무상감자·주식병합으로 생긴 가짜 가격 점프를 <b>상장주식수 대조로 검증</b>한 뒤 보정하는 장치.",
+ w:"크기만 보고 자동 보정하면 거래재개 후 진짜 급등까지 지워버린다. 그래서 주식수 감소가 확인된 점프만 보정하고, 판정 불가는 그 시점 주변만 제외한다.",
+ f:"실측: 제일바이오는 표시상 +29,948%였지만 실제 재개일은 <b>−80%</b>였다(×300 감자). 전 이력 스캔에서 감자 20건·실이벤트 50건·판정불가 40건."},
+{c:"유니버스·데이터", t:"rcept_dt", en:"공시접수일", d:"DART에 재무제표가 접수된 날짜.",
+ w:"결산일이 아니라 <b>이 날짜 +1영업일</b>부터 그 재무를 쓸 수 있다. 3월 결산을 1월에 알 수는 없기 때문이다."},
+{c:"유니버스·데이터", t:"섹터 L1 / L2", en:"", d:"자체 구축한 2단계 산업 분류. L1이 대분류, L2가 밸류체인 단위 세분류(70여 개).",
+ w:"KRX 업종지수는 시총가중 대형주 위주라 테마 흐름을 놓친다. 다만 검증에서는 L2 필터가 기존 업종지수 필터를 이기지 못해 <b>참고 병기</b>로만 쓴다(3회 검증)."},
+
+// ─────────────────────────── 운영·매매
+{c:"운영·매매", t:"트랜치 5분할", en:"tranche", d:"자금을 5등분해 매월 1·6·11·16·말일 신호일마다 하나씩 독립 운용하는 방식.",
+ w:"단일 신호일 전략은 '그 날짜 운'에 성과가 좌우된다. 5개로 쪼개면 날짜 운이 평균화된다.",
+ f:"2026-07-18 라이브 전환. 근거는 신호일별 성과 폭 ~92%p 실측."},
+{c:"운영·매매", t:"슬리브", en:"sleeve", d:"트랜치 각각의 독립 운용 단위. 자기 신호일의 추천만 보고 자기 보유분만 교체한다.",
+ w:"슬리브끼리 섞이면 분할의 의미가 사라진다. 빈 추천이 나온 슬리브는 기존 보유를 그대로 둔다."},
+{c:"운영·매매", t:"청산 A안", en:"", d:"신호일마다 보유를 전량 교체하는 매도 규칙(검증된 마스터).",
+ w:"손절·익절 같은 조건부 규칙 5종을 소급 검증한 결과, 단순 월간 교체가 가장 견고했다."},
+{c:"운영·매매", t:"과열가드", en:"", d:"최근 급등·고변동 종목을 추천에서 제외하는 필터(시점·시장별 상위 10% 기준).",
+ w:"손실의 주범이 <b>급등 정점 추격매수</b>라는 실증에서 나온 규칙.",
+ f:"도입 전후 신호일 5종 평균 −21.6% → +4.1%."},
+{c:"운영·매매", t:"R2 변동성 가드", en:"", d:"VIX가 60일 기준 +1 표준편차를 넘으면 그 날은 <b>추천을 내지 않는</b> 규칙.",
+ w:"시장 전체가 흔들릴 때는 종목 선택력이 의미를 잃는다. 거시 지표를 피처로 넣는 건 실패했지만 이렇게 규칙으로 쓰는 건 채택됐다."},
+{c:"운영·매매", t:"모의투자 / 4중 가드", en:"paper trading", d:"주문 코드가 KIS 모의투자 계좌에만 닿도록 4겹으로 막아둔 구조.",
+ w:"<b>실제 매수·매도는 전부 사용자가 직접 한다.</b> 시스템은 추천과 리포트까지만 만든다. 모의 자동매매는 배관이 정상인지 확인하는 용도다."},
+{c:"운영·매매", t:"섀도우 로그", en:"shadow", d:"실제로 실행하지 않은 대안 규칙의 성과를 가상으로 계속 기록하는 것.",
+ w:"바꾼 규칙이 정말 나았는지는 대조군이 있어야 안다."},
+
+// ─────────────────────────── 배당·밸류
+{c:"배당·밸류", t:"배당수익률 (DIV)", en:"dividend yield", d:"주당 배당금 ÷ 현재 주가. KRX가 <b>직전 결산 배당</b> 기준으로 공표한다.",
+ w:"분모가 주가라서, 주가가 급락하면 배당이 그대로여도 수익률이 치솟는다 — 고배당 종목에 '망해가는 회사'가 섞이는 이유다(value trap).",
+ f:"고배당 top20의 평균 배당수익률은 6.15%."},
+{c:"배당·밸류", t:"DPS", en:"주당배당금", d:"주식 1주에 실제로 지급된 배당금(원).",
+ w:"배당수익률과 달리 주가와 무관해서, 회사의 배당 정책 자체를 보려면 이쪽을 본다."},
+{c:"배당·밸류", t:"감배 / 배당중단", en:"dividend cut / omission", d:"전년보다 DPS를 줄이거나(감배) 아예 없애는 것(중단).",
+ w:"고배당 스크린의 최대 위험이다. 배당을 보고 샀는데 배당이 사라지면 주가도 같이 빠진다.",
+ f:"실측(2012~2026): 배당 지급 종목 전체는 감배 18.0%·중단 4.6%인데, <b>고배당 top20은 감배 41.0%</b>로 2.3배다. 2020년엔 75%까지 갔다."},
+{c:"배당·밸류", t:"배당 지속성", en:"stickiness", d:"기업이 한번 정한 배당 수준을 잘 바꾸지 않는 성질.",
+ f:"우리 데이터에서는 통념보다 약하다 — 배당 지급 종목 기준 동결 36.9% / 증배 36.0% / 감배 19.2% / 중단 7.9%. \"작년과 같은 금액\"을 찍는 단순 예측의 정확도는 <b>37%</b>지만, \"유지 이상\"이라는 방향 예측은 72.9%로 맞는다."},
+{c:"배당·밸류", t:"PER", en:"주가수익비율", d:"시가총액 ÷ 최근 4분기 순이익. 이익 대비 주가가 비싼지 본다.",
+ w:"적자면 계산이 무의미해 결측 처리한다."},
+{c:"배당·밸류", t:"PBR", en:"주가순자산비율", d:"시가총액 ÷ 자기자본. 장부가 대비 주가.",
+ w:"이익이 들쭉날쭉한 기업에도 계산되므로 PER을 보완한다."},
+{c:"배당·밸류", t:"ROE", en:"자기자본이익률", d:"최근 4분기 순이익 ÷ 자기자본. 자본을 얼마나 효율적으로 굴렸는지.",
+ f:"12피처 중 <b>연도별 단독 IC가 6/6 전부 양수</b>인 유일한 피처(+0.035)."},
+{c:"배당·밸류", t:"밸류 스크린 (V1~V3)", en:"", d:"PER·PBR 백분위로 저평가 종목 20개를 뽑는 규칙. V1은 섹터 내 기준, V2는 전체 기준, V3는 반대 방향(고평가) 대조군.",
+ f:"V2가 15년 +184%로 모델(−15.7%)보다 강건했지만 KOSPI(+262%)에는 못 미쳤다. 같은 신호를 모델 피처로 넣으면 오히려 성능이 나빠졌다."},
+{c:"배당·밸류", t:"배당 스크린 (D1~D3)", en:"", d:"배당수익률로 20종목을 뽑는 규칙. D1은 섹터 내 고배당, D2는 전체 고배당, D3는 무배당(대조군).",
+ f:"D2가 15년 +343.5%/Sharpe 0.71로 누적 기준 유일하게 KOSPI(+248.1%/0.55)를 이겼다. 단 우위의 출처는 상승장 알파가 아니라 <b>하락장 방어</b>다."},
+{c:"배당·밸류", t:"value trap", en:"가치 함정", d:"싸 보이거나 배당이 높아 보이지만, 실제로는 사업이 나빠지는 중이라 계속 하락하는 종목.",
+ w:"저PER·고배당 스크린이 구조적으로 빨아들이는 위험이다. 감배 예측 필터가 필요한 이유."},
+
+// ─────────────────────────── 시장·규제
+{c:"시장·규제", t:"KOSPI / KOSDAQ", en:"", d:"각각 대형주 중심 유가증권시장과 중소·성장주 중심 시장.",
+ w:"두 시장은 성격이 달라 같은 규칙도 결과가 다르다. 그래서 코스닥 편입에 동적 상한을 둔다."},
+{c:"시장·규제", t:"시장경보", en:"", d:"거래소가 이상 급등·과열 종목에 붙이는 단계적 경고(투자주의 → 투자경고 → 투자위험).",
+ w:"메일과 리포트에 표기만 하고 <b>매수 차단에는 쓰지 않는다</b> — 소급 검증에서 하드 제외가 오히려 성과를 악화시켜 도입 당일 철회했다."},
+{c:"시장·규제", t:"지정예고", en:"", d:"경보 지정을 예고하는 단계. 기간 소급 조회가 가능해 PIT 피처 후보다.",
+ f:"시장 전체로는 예고 후 1개월 중앙값 −8%지만, 과열가드를 이미 통과한 종목군에서는 추가 효과가 없었다."},
+{c:"시장·규제", t:"배당락", en:"ex-dividend", d:"배당받을 권리가 사라지는 날. 이론상 배당금만큼 주가가 조정된다.",
+ w:"배당수익률 지표가 이 시점 전후로 계단식으로 변한다."},
+{c:"시장·규제", t:"거래정지 / 관리종목", en:"", d:"거래가 멈추거나 상장폐지 위험 단계로 지정된 종목.",
+ w:"장기 거래정지 후 재개되면 가격이 크게 튀는데, 이게 감자와 겹치면 판별이 어려워 '판정불가'로 남긴다."},
+];
+
+const list = document.getElementById("list");
+const chipBox = document.getElementById("chips");
+const cats = [...new Set(TERMS.map(t => t.c))];
+let active = null;
+
+const cards = [];
+for (const cat of cats) {
+  const h = document.createElement("div"); h.className = "cat";
+  const items = TERMS.filter(t => t.c === cat);
+  h.innerHTML = `${cat}<span class="n">${items.length}개</span>`;
+  h.dataset.cat = cat;
+  list.appendChild(h);
+  for (const t of items) {
+    const el = document.createElement("div"); el.className = "term";
+    el.innerHTML = `<h3>${t.t}${t.en ? `<span class="en">${t.en}</span>` : ""}</h3>` +
+      `<p>${t.d}</p>` + (t.w ? `<p class="why">${t.w}</p>` : "") +
+      (t.f ? `<span class="fact">${t.f}</span>` : "");
+    el.dataset.text = (t.t + " " + t.en + " " + t.d + " " + (t.w || "") + " " + (t.f || ""))
+      .replace(/<[^>]+>/g, "").toLowerCase();
+    el.dataset.cat = cat;
+    list.appendChild(el); cards.push(el);
+  }
+}
+for (const cat of cats) {
+  const c = document.createElement("span"); c.className = "chip"; c.textContent = cat;
+  c.onclick = () => { active = (active === cat) ? null : cat; render(); };
+  c.dataset.cat = cat; chipBox.appendChild(c);
+}
+
+function render() {
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  let shown = 0;
+  for (const el of cards) {
+    const ok = (!q || el.dataset.text.includes(q)) && (!active || el.dataset.cat === active);
+    el.classList.toggle("hide", !ok); if (ok) shown++;
+  }
+  for (const h of list.querySelectorAll(".cat")) {
+    const any = cards.some(el => el.dataset.cat === h.dataset.cat && !el.classList.contains("hide"));
+    h.classList.toggle("hide", !any);
+  }
+  for (const c of chipBox.children) c.classList.toggle("on", c.dataset.cat === active);
+  document.getElementById("nores").style.display = shown ? "none" : "block";
+}
+document.getElementById("q").addEventListener("input", render);
+document.getElementById("foot").textContent =
+  `총 ${TERMS.length}개 용어 · 실측 수치는 reports/ 원문 기준이며 재검증 시 갱신된다 · ` +
+  `정의보다 "왜 중요한가"와 "우리 데이터에서 실제로 어땠나"에 무게를 뒀다.`;
+</script>
