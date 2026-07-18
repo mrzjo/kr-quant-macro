@@ -1,0 +1,205 @@
+<meta charset="utf-8">
+<title>kr-quant 피처 현황</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --surface-1: #fcfcfb; --page: #f9f9f7;
+  --ink-1: #0b0b0b; --ink-2: #52514e; --ink-mut: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #17876a; --neg: #c0472f; --warn: #b8860b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #23a383; --neg: #e05c3f; --warn: #d4a017;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --surface-1: #1a1a19; --page: #0d0d0d;
+  --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #23a383; --neg: #e05c3f; --warn: #d4a017;
+}
+.viz-root {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page); color: var(--ink-1);
+  margin: 0 auto; padding: 20px; min-height: 100vh; box-sizing: border-box;
+  max-width: 1080px;
+}
+.viz-root h1 { font-size: 19px; margin: 0 0 2px; }
+.viz-root h2 { font-size: 15px; margin: 22px 0 4px; }
+.sub { color: var(--ink-2); font-size: 12.5px; margin: 0 0 6px; }
+.nav { font-size: 13px; margin: 0 0 14px; }
+.nav a { color: var(--s1); text-decoration: none; margin-right: 14px; }
+.nav .here { color: var(--ink-1); font-weight: 700; margin-right: 14px; }
+.meta { color: var(--ink-2); font-size: 12.5px; margin: 0 0 10px; line-height: 1.55; }
+.fn { color: var(--ink-mut); font-size: 11.5px; line-height: 1.5; margin-top: 6px; }
+.gloss { background: var(--surface-1); border: 1px solid var(--ring); border-radius: 10px;
+  padding: 8px 14px; margin: 0 0 16px; font-size: 12.5px; }
+.gloss summary { cursor: pointer; color: var(--ink-2); font-weight: 600; }
+.gloss dl { margin: 8px 0 4px; }
+.gloss dt { font-weight: 700; font-size: 12px; margin-top: 7px; }
+.gloss dd { margin: 1px 0 0; color: var(--ink-2); font-size: 12px; line-height: 1.5; }
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.card { background: var(--surface-1); border: 1px solid var(--ring); border-radius: 10px;
+  padding: 12px 14px; }
+.card h3 { font-size: 13px; margin: 0 0 8px; }
+.bar-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: 12px; }
+.bar-row .lb { flex: 0 0 118px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; }
+.bar-row .track { flex: 1; height: 13px; background: var(--grid); border-radius: 3px;
+  position: relative; }
+.bar-row .bar { position: absolute; top: 0; height: 13px; border-radius: 3px; }
+.bar-row .zero { position: absolute; top: -1px; width: 1px; height: 15px; background: var(--axis); }
+.bar-row .val { flex: 0 0 84px; text-align: right; font-variant-numeric: tabular-nums;
+  color: var(--ink-1); }
+.bar-row .bar.negv { background: var(--neg) !important; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; margin-top: 4px; }
+th, td { padding: 5px 7px; border-bottom: 1px solid var(--grid); text-align: right;
+  font-variant-numeric: tabular-nums; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; white-space: normal; }
+th { color: var(--ink-2); font-weight: 600; border-bottom: 1px solid var(--axis); }
+td small { color: var(--ink-mut); }
+.wrap { overflow-x: auto; }
+.spark { display: inline-flex; align-items: flex-end; gap: 2px; height: 18px; vertical-align: -4px; }
+.spark i { width: 6px; background: var(--s1); border-radius: 1px; display: block; }
+.spark i.negv { background: var(--neg); }
+.tag { font-size: 10.5px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--ring);
+  color: var(--ink-2); margin-left: 5px; white-space: nowrap; }
+.tag.adopt { color: var(--s2); border-color: var(--s2); }
+.tag.hold { color: var(--warn); border-color: var(--warn); }
+.tag.miss { color: var(--neg); border-color: var(--neg); }
+</style>
+<div class="viz-root">
+<h1>피처 현황 — 라이브 모델이 쓰는 축</h1>
+<p class="sub">생성 2026-07-18 · config/model.yaml features를 라이브 패널에서 매번 재계산 ·
+백테스트 페이지가 "실험 이력"이라면 이 페이지는 "지금 상태"</p>
+<div class="nav"><a href="./index.html">거시지표</a><a href="./positions.html">모의 보유 매도지표</a><a href="./backtests.html">백테스트 결과</a><a href="./sectors.html">섹터 분류</a><span class="here">피처 현황</span></div>
+
+<details class="gloss"><summary>용어·읽는 법 (펼치기)</summary>
+<dl>
+<dt>단독 rank IC</dt><dd>그 피처 <b>하나만으로</b> 20일 뒤 수익률 순위를 맞혔을 때의 상관(스피어만, 신호일별 평균). 모델 전체 IC가 아니라 개별 축의 방향·세기다. 음수면 "값이 낮을수록 수익"이라는 뜻이지 쓸모없다는 뜻이 아니다 — 모델은 부호를 알아서 쓴다.</dd>
+<dt>양수 연도</dt><dd>연도별 단독 IC가 양수였던 해의 수. 전체 평균이 좋아도 특정 해에만 몰렸으면 신뢰가 낮다.</dd>
+<dt>모델 중요도</dt><dd>catboost가 분할에 쓴 기여도(최신 시점 1회 학습, 진단 전용). <b>예측력과 동의어가 아니다</b> — 상관이 높은 피처끼리는 기여도를 나눠 갖는다.</dd>
+<dt>결측률</dt><dd>NaN 비율. per_ttm(적자)·roe_ttm(자본잠식)은 구조적 결측이라 높은 게 정상이며, catboost가 결측을 그대로 처리한다(대체 없음).</dd>
+<dt>최대 상관 피처</dt><dd>가장 강하게 겹치는 다른 피처. 모멘텀 3종처럼 중복 축이 있으면 중요도가 분산된다.</dd>
+<dt>분포 p10/p50/p90</dt><dd>전 기간 값의 하위 10%·중앙·상위 10% 지점. 스케일과 꼬리 감각용.</dd>
+</dl>
+</details>
+
+<h2>① 단독 선택력 — 피처 하나로 예측했다면</h2>
+<div class="meta">막대는 단독 rank IC(절대값이 클수록 단조 관계가 강함). 회색 눈금이 0.
+<b>모델 IC(현행 12피처 합산 0.031)와 비교하면 개별 축이 얼마나 기여할 여지가 있는지</b> 읽힌다.</div>
+<div class="row">
+  <div class="card"><h3>단독 rank IC (전 기간 평균)</h3><div id="f-ic"></div>
+    <div class="fn">부호는 방향일 뿐이다 — 예: 변동성·모멘텀이 음수면 "높을수록 향후 수익이 낮았다".</div></div>
+  <div class="card"><h3>모델 중요도 (catboost)</h3><div id="f-imp"></div>
+    <div class="fn">단독 IC 순위와 어긋나는 피처가 있으면, 그건 모델이 <b>다른 피처와의 조합</b>으로 쓰고 있다는 신호다.</div></div>
+</div>
+
+<h2>② 피처별 상세</h2>
+<div class="meta">연도 막대는 그 해의 단독 IC(위=양수·아래=음수). 결측률이 높은 재무 피처는 구조적 결측이다.</div>
+<div class="wrap"><table id="f-table">
+<thead><tr><th>피처</th><th>단독 IC</th><th>연도별</th><th>양수 연도</th><th>중요도</th><th>결측률</th><th>p10 / p50 / p90</th><th>최대 상관</th></tr></thead>
+<tbody></tbody></table></div>
+
+<h2>③ 피처 축 검증 이력</h2>
+<div class="meta">트라이얼 판정은 <b>사전 고정 기준</b>(신호일 5종 평균 rank IC 개선 AND Sharpe 비열화)으로만 내린다.
+보류된 축도 규칙·필터 경로로는 유효할 수 있다 — 실제로 거시는 R2 가드로, 밸류·배당은 스크린으로 강했다.</div>
+<div class="wrap"><table id="f-trials">
+<thead><tr><th>축</th><th>피처</th><th>판정</th><th>근거</th><th>원문</th></tr></thead>
+<tbody></tbody></table></div>
+<p class="fn" id="f-foot"></p>
+</div>
+<script>
+const DATA = {"asof":"2026-07-18","panel":{"rows":30497,"dates":61,"start":"20210701","end":"20260701","stocks":959},"features":[{"key":"ret_5d","name":"5일 모멘텀","desc":"최근 5거래일 수익률","missing":0.0010164934255828442,"ic":-0.025511277546288673,"ic_pos_years":1,"ic_years":6,"by_year":{"2021":-0.0521,"2022":-0.0222,"2023":-0.0327,"2024":-0.0434,"2025":0.0098,"2026":-0.026},"p10":-0.07487723486075021,"p50":-0.00358209465925724,"p90":0.07676420515003202,"importance":9.229588514549553,"corr_with":"ret_20d","corr_max":0.4311016981658975},{"key":"ret_20d","name":"20일 모멘텀","desc":"최근 20거래일(약 1개월) 수익률","missing":0.0031150604977538774,"ic":-0.030253261870562046,"ic_pos_years":1,"ic_years":6,"by_year":{"2021":-0.042,"2022":-0.0392,"2023":-0.0456,"2024":-0.0104,"2025":-0.0392,"2026":0.0081},"p10":-0.13680194515649144,"p50":0.0,"p90":0.19998269896193793,"importance":9.383941371774094,"corr_with":"ma_gap_60","corr_max":0.7832693235684292},{"key":"ret_60d","name":"60일 모멘텀","desc":"최근 60거래일(약 3개월) 수익률","missing":0.008427058399186805,"ic":-0.032619055210062094,"ic_pos_years":1,"ic_years":6,"by_year":{"2021":-0.0532,"2022":-0.0357,"2023":-0.0653,"2024":-0.0182,"2025":-0.0281,"2026":0.0217},"p10":-0.20551261170240562,"p50":0.003731343283582156,"p90":0.39563476838772454,"importance":7.873070923897978,"corr_with":"ma_gap_60","corr_max":0.8201676948158642},{"key":"vol_20d","name":"20일 변동성","desc":"일간 수익률 표준편차(20일, 비연환산)","missing":0.0031150604977538774,"ic":-0.0677896356581282,"ic_pos_years":0,"ic_years":6,"by_year":{"2021":-0.0674,"2022":-0.0984,"2023":-0.0283,"2024":-0.0989,"2025":-0.0772,"2026":-0.0049},"p10":0.2042656555666485,"p50":0.39608036313103473,"p90":0.7961045597236638,"importance":11.74510504080348,"corr_with":"vol_60d","corr_max":0.844929454983253},{"key":"turnover_chg","name":"거래량 변화","desc":"최근 거래대금 / 과거 거래대금 비율 변화","missing":0.0030166901662458602,"ic":0.015769172778849008,"ic_pos_years":3,"ic_years":6,"by_year":{"2021":-0.0041,"2022":0.0254,"2023":-0.0036,"2024":0.0394,"2025":0.0327,"2026":-0.026},"p10":0.5512354066664545,"p50":0.9125298667911318,"p90":1.5405182360484124,"importance":7.627827962408168,"corr_with":"ret_5d","corr_max":0.27530889178467505},{"key":"per_ttm","name":"PER (TTM)","desc":"주가 / 최근 4분기 순이익 — 적자면 NaN(구조적 결측)","missing":0.2983572154638161,"ic":-0.029051748946737285,"ic_pos_years":1,"ic_years":6,"by_year":{"2021":0.0385,"2022":-0.0336,"2023":-0.0068,"2024":-0.068,"2025":-0.0531,"2026":-0.0061},"p10":4.235067453079686,"p50":14.712889108695046,"p90":82.01579771660379,"importance":4.950959301362173,"corr_with":"roe_ttm","corr_max":0.37155428209120256},{"key":"roe_ttm","name":"ROE (TTM)","desc":"최근 4분기 순이익 / 자본 — 자본잠식이면 NaN","missing":0.1194871626717382,"ic":0.03491164093608921,"ic_pos_years":6,"ic_years":6,"by_year":{"2021":0.0549,"2022":0.0009,"2023":0.0474,"2024":0.0496,"2025":0.0212,"2026":0.056},"p10":-0.09887074796335853,"p50":0.0738069876115474,"p90":0.20875087564910427,"importance":7.050138437822375,"corr_with":"per_ttm","corr_max":0.37155428209120256},{"key":"ret_120d","name":"120일 모멘텀","desc":"최근 120거래일(약 6개월) 수익률 — 2026-07-18 추가","missing":0.017214808013903005,"ic":-0.017845029706660916,"ic_pos_years":2,"ic_years":6,"by_year":{"2021":-0.0144,"2022":-0.0369,"2023":-0.0506,"2024":0.0161,"2025":-0.021,"2026":0.0206},"p10":-0.26930255545541765,"p50":0.018181818181818077,"p90":0.677893214841387,"importance":8.340085707435394,"corr_with":"ret_60d","corr_max":0.6882721042195851},{"key":"dist_52w_high","name":"52주 고점 거리","desc":"현재가 / 52주 최고가 − 1 (0에 가까울수록 신고가) — 2026-07-18 추가","missing":0.01711643768239499,"ic":0.03455840587094134,"ic_pos_years":4,"ic_years":6,"by_year":{"2021":0.0408,"2022":0.0508,"2023":-0.014,"2024":0.0898,"2025":-0.0025,"2026":0.0567},"p10":-0.4749646182169767,"p50":-0.225531914893617,"p90":-0.04325123465468216,"importance":6.806966857262483,"corr_with":"ret_120d","corr_max":0.6866243488779555},{"key":"vol_60d","name":"60일 변동성","desc":"일간 수익률 표준편차(60일, 비연환산) — 2026-07-18 추가","missing":0.005836639669475686,"ic":-0.08420320103750562,"ic_pos_years":0,"ic_years":6,"by_year":{"2021":-0.071,"2022":-0.1447,"2023":-0.0401,"2024":-0.1164,"2025":-0.0728,"2026":-0.0231},"p10":0.015042054837615663,"p50":0.026910763134523265,"p90":0.051154355171804285,"importance":9.170145109300236,"corr_with":"vol_20d","corr_max":0.844929454983253},{"key":"ma_gap_60","name":"60일선 괴리율","desc":"현재가 / 60일 이동평균 − 1 — 2026-07-18 추가","missing":0.005705479227464997,"ic":-0.036577101308765354,"ic_pos_years":1,"ic_years":6,"by_year":{"2021":-0.0434,"2022":-0.0569,"2023":-0.0471,"2024":-0.0272,"2025":-0.0316,"2026":0.0031},"p10":-0.13096464209430797,"p50":-0.005353728489483789,"p90":0.18415056204847036,"importance":10.318809608776675,"corr_with":"ret_60d","corr_max":0.8201676948158642},{"key":"turn_ratio","name":"거래 활성비","desc":"거래대금 20일 평균 / 120일 평균 — 2026-07-18 추가","missing":0.008263107846673444,"ic":-0.008273211554007329,"ic_pos_years":3,"ic_years":6,"by_year":{"2021":-0.0037,"2022":0.0076,"2023":-0.0132,"2024":0.0151,"2025":-0.0569,"2026":0.0156},"p10":0.4279673920904914,"p50":0.8745972097582959,"p90":1.8419211482782483,"importance":7.503361164607401,"corr_with":"ret_60d","corr_max":0.5683678120595288}],"years":["2021","2022","2023","2024","2025","2026"],"trials":[{"axis":"기술 5종","features":"ret_120d·dist_52w_high·vol_60d·ma_gap_60·turn_ratio","verdict":"채택","note":"15년 U1 A/B에서 IC 0.012→0.031 전 오프셋 개선, Sharpe 비열화","report":"feature_trial_u1_15y.md"},{"axis":"거시(VIX·금리 등)","features":"vix_z60 외","verdict":"보류","note":"피처 주입은 열화 — 대신 R2 변동성 가드(규칙)로 라이브 채택","report":"macro_feature_trial.md"},{"axis":"수급(외인·기관)","features":"frgn_net_20d 외","verdict":"보류","note":"단독 IC +0.025(양수 연도 100%)인데 주입은 U0·U1 두 번 다 IC↔Sharpe 괴리","report":"flow_feature_trial.md"},{"axis":"밸류(PER·PBR 백분위)","features":"value_global·value_sector","verdict":"보류","note":"스크린 규칙으로는 15년 +184%인데 피처 주입은 IC·Sharpe 모두 열화","report":"value_feature_trial_u1_15y.md"},{"axis":"배당(DIV)","features":"div_yield·div_pct_sector","verdict":"보류","note":"단독 IC +0.061(최고)인데 주입은 Sharpe 0.08→0.07 열화. 스크린은 15년 +343.5%","report":"dividend_feature_trial_u1.md"}]};
+const F = DATA.features;
+const fmt = (v, d = 3) => (v === null || Number.isNaN(v)) ? "—" : v.toFixed(d);
+const pct = v => (v === null || Number.isNaN(v)) ? "—" : (v * 100).toFixed(1) + "%";
+
+function bars(el, items) {
+  // items: [{label, value, fmt}] — 0 기준 양방향 수평 막대
+  const vals = items.map(i => i.value);
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals), span = (hi - lo) || 1;
+  const root = document.getElementById(el);
+  for (const it of items) {
+    const row = document.createElement("div"); row.className = "bar-row";
+    const lb = document.createElement("span"); lb.className = "lb";
+    lb.textContent = it.label; lb.title = it.label;
+    const track = document.createElement("div"); track.className = "track";
+    const zero = document.createElement("div"); zero.className = "zero";
+    zero.style.left = `${(-lo) / span * 100}%`; track.appendChild(zero);
+    const bar = document.createElement("div");
+    bar.className = "bar" + (it.value < 0 ? " negv" : "");
+    bar.style.width = `${Math.max(Math.abs(it.value) / span * 100, 0.6)}%`;
+    bar.style.left = `${((it.value < 0 ? it.value : 0) - lo) / span * 100}%`;
+    bar.style.background = "var(--s1)";
+    bar.title = `${it.label}: ${it.fmt}`;
+    track.appendChild(bar);
+    const val = document.createElement("span"); val.className = "val"; val.textContent = it.fmt;
+    row.appendChild(lb); row.appendChild(track); row.appendChild(val);
+    root.appendChild(row);
+  }
+}
+
+bars("f-ic", [...F].sort((a, b) => Math.abs(b.ic) - Math.abs(a.ic))
+  .map(f => ({label: f.name, value: f.ic, fmt: fmt(f.ic, 4)})));
+bars("f-imp", [...F].sort((a, b) => b.importance - a.importance)
+  .map(f => ({label: f.name, value: f.importance, fmt: fmt(f.importance, 1)})));
+
+function spark(byYear, years) {
+  const vals = years.map(y => byYear[y]).filter(v => v !== undefined);
+  const mx = Math.max(0.001, ...vals.map(Math.abs));
+  const el = document.createElement("span"); el.className = "spark";
+  for (const y of years) {
+    const v = byYear[y];
+    const i = document.createElement("i");
+    if (v === undefined) { i.style.height = "1px"; i.style.opacity = "0.25"; }
+    else {
+      i.style.height = `${Math.max(2, Math.abs(v) / mx * 16)}px`;
+      if (v < 0) i.className = "negv";
+      i.title = `${y}: ${v.toFixed(4)}`;
+    }
+    el.appendChild(i);
+  }
+  return el;
+}
+
+const tb = document.querySelector("#f-table tbody");
+for (const f of [...F].sort((a, b) => b.importance - a.importance)) {
+  const tr = document.createElement("tr");
+  const c0 = document.createElement("td");
+  c0.innerHTML = `<b>${f.name}</b> <small>${f.key}</small><br><small>${f.desc}</small>`;
+  tr.appendChild(c0);
+  const add = (html) => { const td = document.createElement("td"); td.innerHTML = html; tr.appendChild(td); return td; };
+  add(fmt(f.ic, 4));
+  add("").appendChild(spark(f.by_year, DATA.years));
+  add(`${f.ic_pos_years}/${f.ic_years}`);
+  add(fmt(f.importance, 1));
+  const m = add(pct(f.missing));
+  if (f.missing > 0.2) m.innerHTML = `${pct(f.missing)} <span class="tag miss">구조적</span>`;
+  add(`${fmt(f.p10, 2)} / ${fmt(f.p50, 2)} / ${fmt(f.p90, 2)}`);
+  add(`${f.corr_with} <small>${fmt(f.corr_max, 2)}</small>`);
+  tb.appendChild(tr);
+}
+
+const tt = document.querySelector("#f-trials tbody");
+for (const t of DATA.trials) {
+  const tr = document.createElement("tr");
+  const cls = t.verdict === "채택" ? "adopt" : "hold";
+  tr.innerHTML = `<td><b>${t.axis}</b></td><td style="text-align:left"><small>${t.features}</small></td>` +
+    `<td><span class="tag ${cls}">${t.verdict}</span></td>` +
+    `<td style="text-align:left"><small>${t.note}</small></td>` +
+    `<td style="text-align:left"><small>reports/${t.report}</small></td>`;
+  tt.appendChild(tr);
+}
+
+document.getElementById("f-foot").textContent =
+  `패널: ${DATA.panel.rows.toLocaleString()}행 · ${DATA.panel.stocks}종목 · ` +
+  `신호일 ${DATA.panel.dates}개 (${DATA.panel.start}~${DATA.panel.end}, U1 시총500·감자 가드 적용). ` +
+  `단독 IC는 신호일 횡단면 20종목 이상인 날짜만 집계. 중요도는 최신 시점 1회 학습(seed 고정) — 진단 전용이며 라이브 예측에 쓰이지 않는다.`;
+</script>
