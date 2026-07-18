@@ -278,6 +278,29 @@ C(E1)→A로 전환(가상 C는 섀도우 대조군으로 계속 축적).</div>
 feature_trial_u1_15y.md · flow_trial_u1_3y.md</div>
 </section>
 
+<section id="value">
+<h2>⑧ 밸류(PER·PBR 저평가) 스크린·피처 검증 (2026-07-18)<span class="badge">스크린 관찰(미채택)</span><span class="badge">피처 보류</span></h2>
+<div class="meta">질문: 섹터별 저평가 종목을 뽑으면 수익이 되나 — KRX 공표 PER·PBR(신호일 당일·0=결측 제외),
+U1(시총500), top20 월간 교체·T+1·비용·감자 가드, 신호일 5종 교차. 섹터=멤버십 스냅샷 소급 근사.</div>
+<div class="row">
+  <div class="card"><h3>U1 3년 (2021-07~) — 총수익 5신호일 평균</h3><div id="v-3y"></div>
+    <div class="fn">저평가–고평가 스프레드 ~105%p, 전 신호일 같은 방향. 의외로 <b>섹터 중립화(V1)가
+    전체 저평가(V2)보다 열위</b> — "비싼 섹터의 덜 비싼 것"까지 사게 되는 비용.</div></div>
+  <div class="card"><h3>U1 15년 (2012+) — 총수익 5신호일 평균</h3><div id="v-15y"></div>
+    <div class="fn">밸류 프리미엄 15년 일관(스프레드 ~224%p). 같은 이력의 모델(①-1 U1 −15.7%)과
+    대비하면 단순 스크린의 강건성이 두드러짐 — 다만 지수(+262%)에는 열위(밸류 틸트의 베타 열세).</div></div>
+  <div class="card"><h3>모델 피처 주입 A/B (15년 패널) — 보류</h3>
+    <div class="legend"><span><span class="key" style="background:var(--s1)"></span>A: 현행 12피처</span>
+    <span><span class="key" style="background:var(--s2)"></span>B: +밸류 2피처</span></div>
+    <div id="v-feat"></div>
+    <div class="fn">value_global·value_sector를 피처로 추가하면 <b>IC·Sharpe 모두 열화</b>(5신호일 전부
+    IC 하락) — 사전 고정 기준 미달로 보류. 스크린(규칙)으로는 강하고 피처(모델)로는 해로운 대비:
+    모멘텀 학습과 섞이며 희석되는 것으로 해석.</div></div>
+</div>
+<div class="fn">원문: reports/value_sector_study.md · value_sector_study_full.md · value_feature_trial_u1_15y.md.
+라이브 변경 없음(관찰) — 후속 후보: 배당(DIV)·재무 파생(성장·퀄리티) 트라이얼.</div>
+</section>
+
 <p class="fn">공통 한계: 단일 이력 1회 실험(통계적 유의성 아님) · 슬리피지 0·종가 체결 가정 ·
 섹터 로테이션은 지수 직접 보유 가정(비용 0). 규칙이 소급 검증에서 뒤집히면 되돌린다(지정예고 제외 사례).</p>
 </div>
@@ -535,6 +558,24 @@ groups("c-feat", [
 groups("c-flow", [
   {title: "rank IC 평균", items: [{label: "A", value: 0.0177, fmt: "0.018"}, {label: "B", value: 0.0255, fmt: "0.026"}]},
   {title: "Sharpe", items: [{label: "A", value: 0.31, fmt: "0.31"}, {label: "B", value: 0.24, fmt: "0.24"}]},
+], ["var(--s1)", "var(--s2)"], true);
+
+// ⑧ 밸류 스크린·피처 (reports/value_sector_study*.md · value_feature_trial_u1_15y.md)
+bars("v-3y", [
+  {label: "V2 전체 저평가", value: 67.7, strong: true, color: "var(--s2)", fmt: "+67.7% (Sharpe 0.58)"},
+  {label: "V1 섹터내 저평가", value: 35.5, fmt: "+35.5% (0.38)"},
+  {label: "V3 고평가(대조)", value: -37.1, fmt: "-37.1% (-0.19)"},
+  {label: "KOSPI", value: 109.6, dim: true, fmt: "+109.6%"},
+]);
+bars("v-15y", [
+  {label: "V2 전체 저평가", value: 184.0, strong: true, color: "var(--s2)", fmt: "+184.0% (0.48)"},
+  {label: "V1 섹터내 저평가", value: 167.7, fmt: "+167.7% (0.45)"},
+  {label: "V3 고평가(대조)", value: -39.8, fmt: "-39.8% (-0.02)"},
+  {label: "KOSPI", value: 262.4, dim: true, fmt: "+262.4%"},
+]);
+groups("v-feat", [
+  {title: "rank IC 평균", items: [{label: "A", value: 0.0311, fmt: "0.031"}, {label: "B", value: 0.0286, fmt: "0.029"}]},
+  {title: "Sharpe", items: [{label: "A", value: 0.08, fmt: "0.08"}, {label: "B", value: 0.06, fmt: "0.06"}]},
 ], ["var(--s1)", "var(--s2)"], true);
 
 bars("f-imp", [
