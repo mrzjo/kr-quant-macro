@@ -336,6 +336,28 @@ T+1·비용·감자 가드, 신호일 5종 교차. <b>배당 현금흐름 미반
 바스켓이 뽑혀 대조군이 +108.7%로 왜곡됐다 — (신호일, 티커) 해시로 동점을 깨 −13.8%로 교정.</div>
 </section>
 
+
+<section id="modelrematch">
+<h2>⑩ 모델 재비교 — 현행 조건(U1·12피처) 재검증 (2026-07-22) <span class="badge adopt">현행 유지</span></h2>
+<div class="meta">배경: catboost는 2026-07-05 U0(거래대금500)+7피처 조건에서 선정됐다
+(①). 이후 U1 전환(⑤, 07-17)·기술 5종 추가(⑦, 07-18)로 조건이 두 번 바뀌어, 원 선정과
+같은 사전 고정 규칙(rank IC 평균 순위 + Sharpe 순위 합 최소)을 현행 조건에 재적용한다 —
+15년 U1 패널(①-1 캐시 재사용), 신호일 5종 평균, top20 균등·T+1·청산 A·비용 반영.</div>
+<div class="row">
+  <div class="card"><h3>신호일 5종 평균 — 모델별 지표</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+      <tr style="color:var(--ink-mut);text-align:left">
+        <th style="padding:3px 6px">모델</th><th style="padding:3px 6px">rank IC</th>
+        <th style="padding:3px 6px">Sharpe</th><th style="padding:3px 6px">순위합</th>
+        <th style="padding:3px 6px">판정</th></tr>
+      <tr><td>catboost ★</td><td>0.0301</td><td>0.12</td><td>2</td><td>선정</td></tr><tr><td>xgboost</td><td>0.0272</td><td>0.10</td><td>4</td><td></td></tr><tr><td>lightgbm</td><td>0.0245</td><td>0.05</td><td>6</td><td></td></tr>
+    </table>
+  </div>
+</div>
+<div class="fn">판정(사전 고정): <b>catboost</b> — 현재 selected_model(catboost)과 일치 — 현행 유지가 타당. 원문: reports/model_rematch_u1.md.
+한계: U1은 IC 희석 인지(⑤), 단일 이력 1회 실험.</div>
+</section>
+
 <p class="fn">공통 한계: 단일 이력 1회 실험(통계적 유의성 아님) · 슬리피지 0·종가 체결 가정 ·
 섹터 로테이션은 지수 직접 보유 가정(비용 0). 규칙이 소급 검증에서 뒤집히면 되돌린다(지정예고 제외 사례).</p>
 </div>
