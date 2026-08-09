@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kr-quant 뉴스 점수 (v1.5)</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --surface-1: #fcfcfb; --page: #f9f9f7;
+  --ink-1: #0b0b0b; --ink-2: #52514e; --ink-mut: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --up: #c02f1d; --down: #1d5fc0; --neu: #a8a69e;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --up: #e05a48; --down: #4a86e8; --neu: #6b6a64;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --surface-1: #1a1a19; --page: #0d0d0d;
+  --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --s1: #3987e5; --up: #e05a48; --down: #4a86e8; --neu: #6b6a64;
+}
+.viz-root {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page); color: var(--ink-1);
+  margin: 0 auto; padding: 20px; min-height: 100vh; box-sizing: border-box;
+  max-width: 1080px;
+}
+.viz-root h1 { font-size: 19px; margin: 0 0 2px; }
+.sub { color: var(--ink-2); font-size: 12.5px; margin: 0 0 6px; }
+.nav { font-size: 13px; margin: 0 0 14px; }
+.nav a { color: var(--s1); text-decoration: none; margin-right: 14px; }
+.nav .here { color: var(--ink-1); font-weight: 700; margin-right: 14px; }
+.card { background: var(--surface-1); border: 1px solid var(--ring);
+  border-radius: 10px; padding: 14px; margin: 0 0 12px; }
+.card h2 { font-size: 14px; margin: 0 0 8px; }
+.card .note { color: var(--ink-mut); font-size: 11.5px; margin: 6px 0 0; }
+.card svg { width: 100%; height: auto; display: block; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 720px) { .cols { grid-template-columns: 1fr; } }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th { text-align: left; color: var(--ink-2); font-weight: 600; padding: 4px 6px;
+  border-bottom: 1px solid var(--axis); }
+td { padding: 4px 6px; border-bottom: 1px solid var(--grid); }
+td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.upc { color: var(--up); font-weight: 700; }
+.downc { color: var(--down); font-weight: 700; }
+.tag { display: inline-block; padding: 0 6px; border: 1px solid var(--axis);
+  border-radius: 8px; font-size: 11px; color: var(--ink-2); }
+</style>
+<div class="viz-root">
+<h1>뉴스 점수 — v1.5 (표시 전용)</h1>
+<p class="sub">수집일 20260809 기준 · 매일 08:10 하이쿠 점수화 → 아침 메일 ▲/▼ 마크의 원천 ·
+  이벤트 점수 &gt; +문턱 = ▲(호재성), &lt; −문턱 = ▼(악재성) · 매매 판단 미개입</p>
+<div class="nav"><a href="./index.html">거시지표</a><a href="./positions.html">모의 보유 매도지표</a><a href="./backtests.html">백테스트 결과</a><a href="./sectors.html">섹터 분류</a><a href="./features.html">피처 현황</a><span class="here">뉴스 점수</span><a href="./glossary.html">용어 사전</a><a href="./regime.html">레짐 판정 이력</a></div>
+
+<div class="card">
+  <h2>일별 추이 — ▲/▼ 종목 수와 평균 이벤트 점수</h2>
+  <svg id="seriesChart" role="img" aria-label="일별 상승·하락 마크 종목 수 막대와 평균 이벤트 점수 선"></svg>
+  <p class="note">막대: 그날 신규 기사 기준 ▲(빨강)/▼(파랑) 종목 수 · 선: 전 종목 평균 이벤트 점수(우축 −1~+1) ·
+    아티팩트는 소급 생성하지 않으므로 결손일은 빈 자리로 남는다</p>
+</div>
+
+<div class="cols">
+  <div class="card">
+    <h2>오늘의 이벤트 점수 분포</h2>
+    <svg id="histChart" role="img" aria-label="이벤트 점수 히스토그램"></svg>
+    <p class="note">±문턱 밖(색칠)이 메일에 마크로 표시되는 구간</p>
+  </div>
+  <div class="card">
+    <h2>오늘의 대표 이벤트 라벨</h2>
+    <svg id="eventChart" role="img" aria-label="대표 이벤트 라벨별 종목 수 가로 막대"></svg>
+    <p class="note">고정 어휘 12종 — 검증기가 어휘 밖 라벨을 반려한다</p>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="card">
+    <h2 class="upc">▲ 호재성 상위</h2>
+    <table id="upTable"></table>
+  </div>
+  <div class="card">
+    <h2 class="downc">▼ 악재성 상위</h2>
+    <table id="downTable"></table>
+  </div>
+</div>
+<p class="sub" id="footMeta"></p>
+</div>
+<script>
+const D = {"asof":"20260809","generated_at":"2026-08-09 14:14","threshold":0.3,"scorer_version":"v1.5.0+haiku-4.5","series":[{"d":"20260808","n":632,"up":218,"down":40,"avg_event":0.198,"avg_sent":0.221},{"d":"20260809","n":212,"up":58,"down":9,"avg_event":0.16,"avg_sent":0.203}],"hist":[{"lo":-1.0,"hi":-0.7,"count":1},{"lo":-0.7,"hi":-0.5,"count":1},{"lo":-0.5,"hi":-0.3,"count":7},{"lo":-0.3,"hi":-0.1,"count":8},{"lo":-0.1,"hi":0.1,"count":97},{"lo":0.1,"hi":0.3,"count":22},{"lo":0.3,"hi":0.5,"count":32},{"lo":0.5,"hi":0.7,"count":32},{"lo":0.7,"hi":1.0,"count":12}],"events":[{"label":"기타","count":130},{"label":"실적","count":33},{"label":"신제품","count":19},{"label":"수주","count":7},{"label":"소송","count":6},{"label":"규제","count":6},{"label":"M&A","count":4},{"label":"임상","count":3},{"label":"공급계약","count":2},{"label":"증자","count":1},{"label":"거래정지","count":1}],"up":[{"code":"079160","name":"CJ CGV","event":0.8,"sent":0.8,"conf":0.9,"label":"실적","n":2},{"code":"079550","name":"LIG디펜스앤에어로스페이스","event":0.8,"sent":0.8,"conf":0.6,"label":"수주","n":1},{"code":"196170","name":"알테오젠","event":0.8,"sent":0.8,"conf":0.85,"label":"공급계약","n":2},{"code":"326030","name":"SK바이오팜","event":0.7,"sent":0.7,"conf":0.8,"label":"실적","n":2},{"code":"079370","name":"제우스","event":0.7,"sent":0.7,"conf":0.9,"label":"신제품","n":8},{"code":"000500","name":"가온전선","event":0.7,"sent":0.8,"conf":0.8,"label":"수주","n":2},{"code":"069260","name":"TKG휴켐스","event":0.7,"sent":0.8,"conf":0.6,"label":"실적","n":1},{"code":"112610","name":"씨에스윈드","event":0.7,"sent":0.8,"conf":0.6,"label":"실적","n":1},{"code":"145020","name":"휴젤","event":0.7,"sent":0.8,"conf":0.85,"label":"실적","n":3},{"code":"280360","name":"롯데웰푸드","event":0.7,"sent":0.8,"conf":0.8,"label":"실적","n":2},{"code":"084870","name":"TBH글로벌","event":0.7,"sent":0.8,"conf":0.95,"label":"실적","n":11},{"code":"005930","name":"삼성전자","event":0.7,"sent":0.8,"conf":0.8,"label":"실적","n":2}],"down":[{"code":"032800","name":"판타지오","event":-0.8,"sent":-0.8,"conf":0.9,"label":"소송","n":15},{"code":"205470","name":"휴마시스","event":-0.6,"sent":-0.7,"conf":0.8,"label":"소송","n":6},{"code":"000670","name":"영풍","event":-0.5,"sent":-0.6,"conf":0.7,"label":"소송","n":4},{"code":"226340","name":"본느","event":-0.5,"sent":-0.6,"conf":0.7,"label":"거래정지","n":1},{"code":"489790","name":"한화비전","event":-0.5,"sent":-0.7,"conf":0.7,"label":"소송","n":1},{"code":"000720","name":"현대건설","event":-0.4,"sent":-0.5,"conf":0.7,"label":"기타","n":1},{"code":"069080","name":"웹젠","event":-0.4,"sent":-0.3,"conf":0.7,"label":"실적","n":2},{"code":"194480","name":"데브시스터즈","event":-0.4,"sent":-0.2,"conf":0.7,"label":"실적","n":3},{"code":"317450","name":"명인제약","event":-0.4,"sent":-0.6,"conf":0.6,"label":"기타","n":1}]};
+const css = v => getComputedStyle(document.querySelector('.viz-root')).getPropertyValue(v).trim();
+
+function el(tag, attrs) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function seriesChart() {
+  const svg = document.getElementById('seriesChart');
+  const W = 1020, H = 240, L = 44, R = 44, T = 12, B = 26;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const s = D.series, n = s.length;
+  const maxCnt = Math.max(10, ...s.map(r => Math.max(r.up, r.down)));
+  const iw = (W - L - R) / Math.max(n, 1), bw = Math.min(18, iw * 0.28);
+  const y = c => H - B - (c / maxCnt) * (H - T - B);
+  const yr = v => H - B - ((v + 1) / 2) * (H - T - B);   // 우축 −1~+1
+  for (const g of [0, 0.25, 0.5, 0.75, 1]) {
+    const yy = H - B - g * (H - T - B);
+    svg.appendChild(el('line', {x1: L, x2: W - R, y1: yy, y2: yy,
+      stroke: css('--grid'), 'stroke-width': 1}));
+    svg.appendChild(Object.assign(el('text', {x: L - 6, y: yy + 4, 'text-anchor': 'end',
+      'font-size': 10, fill: css('--ink-mut')}), {textContent: Math.round(maxCnt * g)}));
+    svg.appendChild(Object.assign(el('text', {x: W - R + 6, y: yy + 4,
+      'font-size': 10, fill: css('--ink-mut')}), {textContent: (g * 2 - 1).toFixed(1)}));
+  }
+  s.forEach((r, i) => {
+    const cx = L + iw * (i + 0.5);
+    svg.appendChild(el('rect', {x: cx - bw - 1, y: y(r.up), width: bw,
+      height: H - B - y(r.up), fill: css('--up'), opacity: 0.85}));
+    svg.appendChild(el('rect', {x: cx + 1, y: y(r.down), width: bw,
+      height: H - B - y(r.down), fill: css('--down'), opacity: 0.85}));
+    if (n <= 40 || i % Math.ceil(n / 20) === 0)
+      svg.appendChild(Object.assign(el('text', {x: cx, y: H - 8, 'text-anchor': 'middle',
+        'font-size': 9.5, fill: css('--ink-mut')}),
+        {textContent: r.d.slice(4, 6) + '/' + r.d.slice(6)}));
+  });
+  const pts = s.map((r, i) => `${L + iw * (i + 0.5)},${yr(r.avg_event)}`).join(' ');
+  svg.appendChild(el('polyline', {points: pts, fill: 'none',
+    stroke: css('--ink-1'), 'stroke-width': 2}));
+  s.forEach((r, i) => svg.appendChild(el('circle',
+    {cx: L + iw * (i + 0.5), cy: yr(r.avg_event), r: 3, fill: css('--ink-1')})));
+  svg.appendChild(el('line', {x1: L, x2: W - R, y1: yr(0), y2: yr(0),
+    stroke: css('--axis'), 'stroke-dasharray': '4 3'}));
+}
+
+function histChart() {
+  const svg = document.getElementById('histChart');
+  const W = 500, H = 200, L = 8, T = 8, B = 30;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const h = D.hist, max = Math.max(1, ...h.map(b => b.count));
+  const bw = (W - L * 2) / h.length;
+  h.forEach((b, i) => {
+    const mid = (b.lo + b.hi) / 2;
+    const marked = mid > D.threshold ? '--up' : (mid < -D.threshold ? '--down' : '--neu');
+    const hh = (b.count / max) * (H - T - B);
+    svg.appendChild(el('rect', {x: L + i * bw + 2, y: H - B - hh,
+      width: bw - 4, height: hh, fill: css(marked), opacity: 0.9, rx: 2}));
+    svg.appendChild(Object.assign(el('text', {x: L + i * bw + bw / 2, y: H - B - hh - 4,
+      'text-anchor': 'middle', 'font-size': 10, fill: css('--ink-2')}),
+      {textContent: b.count || ''}));
+    svg.appendChild(Object.assign(el('text', {x: L + i * bw, y: H - 12,
+      'text-anchor': 'middle', 'font-size': 9, fill: css('--ink-mut')}),
+      {textContent: b.lo.toFixed(1)}));
+  });
+}
+
+function eventChart() {
+  const svg = document.getElementById('eventChart');
+  const ev = D.events.slice(0, 8);
+  const W = 500, rowH = 24, H = ev.length * rowH + 8;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const max = Math.max(1, ...ev.map(e => e.count)), lab = 84;
+  ev.forEach((e, i) => {
+    const y = 4 + i * rowH, w = (e.count / max) * (W - lab - 50);
+    svg.appendChild(Object.assign(el('text', {x: lab - 8, y: y + 15,
+      'text-anchor': 'end', 'font-size': 12, fill: css('--ink-1')}),
+      {textContent: e.label}));
+    svg.appendChild(el('rect', {x: lab, y: y + 4, width: Math.max(w, 2), height: rowH - 10,
+      fill: css('--s1'), opacity: 0.8, rx: 3}));
+    svg.appendChild(Object.assign(el('text', {x: lab + Math.max(w, 2) + 6, y: y + 15,
+      'font-size': 11.5, fill: css('--ink-2')}), {textContent: e.count}));
+  });
+}
+
+function table(id, rows, cls) {
+  const t = document.getElementById(id);
+  t.innerHTML = '<tr><th>종목</th><th class="r">이벤트</th><th class="r">논조</th><th class="r">확신</th><th>라벨</th><th class="r">기사</th></tr>';
+  for (const r of rows) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.name} <span class="tag">${r.code}</span></td>` +
+      `<td class="r ${cls}">${r.event > 0 ? '+' : ''}${r.event.toFixed(2)}</td>` +
+      `<td class="r">${r.sent > 0 ? '+' : ''}${r.sent.toFixed(2)}</td>` +
+      `<td class="r">${r.conf.toFixed(2)}</td>` +
+      `<td><span class="tag">${r.label}</span></td><td class="r">${r.n}</td>`;
+    t.appendChild(tr);
+  }
+  if (!rows.length) t.innerHTML += '<tr><td colspan="6" style="color:var(--ink-mut)">해당 없음</td></tr>';
+}
+
+seriesChart(); histChart(); eventChart();
+table('upTable', D.up, 'upc'); table('downTable', D.down, 'downc');
+document.getElementById('footMeta').textContent =
+  `생성 ${D.generated_at} · scorer ${D.scorer_version} · 문턱 ±${D.threshold} · ` +
+  `아티팩트 ${D.series.length}일치 축적 (소급 생성 없음 — 결손일은 영구)`;
+</script>
