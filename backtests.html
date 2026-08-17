@@ -358,6 +358,35 @@ T+1·비용·감자 가드, 신호일 5종 교차. <b>배당 현금흐름 미반
 한계: U1은 IC 희석 인지(⑤), 단일 이력 1회 실험.</div>
 </section>
 
+<section id="entrytiming">
+<h2>⑪ 진입 타이밍 규칙 — 눌림목·정점 차단·추세 필터 (2026-08-17) <span class="badge">R3·R1a 채택 후보(승인 대기)</span></h2>
+<div class="meta">배경: 차트 기법 조사(docs/technique-survey.md)에서 정량화 가능 판정을 받은
+진입 규칙을 사전 등록으로 검증 — 모델 랭킹은 유지, 위반 종목은 후순위 강등(차순위 충원,
+과열가드와 같은 메커니즘). 오프셋별 워크포워드 예측 캐시(2021-07~) 재사용, 신호일 5종 교차.
+판정(사전 고정): 5오프셋 평균 Sharpe와 2026 제외 창 둘 다 BASE 초과.</div>
+<div class="row">
+  <div class="card"><h3>팔별 판정 — 신호일 5종 평균</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+      <tr style="color:var(--ink-mut);text-align:left">
+        <th style="padding:3px 6px">팔</th><th style="padding:3px 6px">규칙</th>
+        <th style="padding:3px 6px">Sharpe</th><th style="padding:3px 6px">2026 제외</th>
+        <th style="padding:3px 6px">CAGR</th><th style="padding:3px 6px">판정</th></tr>
+      <tr><td>BASE</td><td>현행(무필터)</td><td>−0.06</td><td>−0.07</td><td>−8.9%</td><td>—</td></tr>
+      <tr><td><b>R3</b></td><td>종가&gt;MA60만 편입</td><td><b>+0.09</b></td><td><b>+0.05</b></td><td><b>−2.2%</b></td><td><b>채택 후보</b> (5오프셋 중 4승, CAGR +6.7%p)</td></tr>
+      <tr><td>R1a</td><td>눌림목 5일(ret5≤0)</td><td>−0.04</td><td>−0.03</td><td>−8.1%</td><td>채택 후보 — 단 턱걸이·오프셋 분산 큼(참고)</td></tr>
+      <tr><td>R1b</td><td>눌림목 10일</td><td>−0.09</td><td>−0.12</td><td>−9.6%</td><td>기각</td></tr>
+      <tr><td>R2</td><td>52주 고점 5% 이내 제외</td><td>−0.18</td><td>−0.17</td><td>−12.9%</td><td>기각 — <b>악화</b></td></tr>
+      <tr><td>R1a∧R2</td><td>결합</td><td>−0.07</td><td>−0.07</td><td>−9.0%</td><td>기각</td></tr>
+    </table>
+  </div>
+</div>
+<div class="fn">해석: <b>R3(종목 추세 필터)</b>가 실질 승자 — 시장 단위 레짐(MA100)의 종목판이
+독립 가치를 보임. <b>R2 기각이 중요한 반전</b>: "정점 추격이 손실 주범"(15년 실증)이라도
+정점 근접 <i>제외</i> 규칙은 오히려 악화 — 52주 고점 근접의 모멘텀 신호(George&amp;Hwang)가
+이 창에서 우세. 손실 주범 진단과 그 역방향 규칙의 유효성은 별개임을 재확인(밸류·배당과
+같은 패턴 4번째). 라이브 반영은 별도 승인 대기. 원문: reports/entry_timing_study.md.</div>
+</section>
+
 <p class="fn">공통 한계: 단일 이력 1회 실험(통계적 유의성 아님) · 슬리피지 0·종가 체결 가정 ·
 섹터 로테이션은 지수 직접 보유 가정(비용 0). 규칙이 소급 검증에서 뒤집히면 되돌린다(지정예고 제외 사례).</p>
 </div>
