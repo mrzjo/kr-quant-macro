@@ -390,6 +390,61 @@ R3는 전체 창 Sharpe 0.26&gt;BASE 0.23이나 1차 창과 비중첩인 앞 구
 원문: reports/entry_timing_study.md · reports/entry_timing_study_15y.md.</div>
 </section>
 
+<section id="earningsavoid">
+<h2>⑫ 어닝 임박 회피 (E1) — 실적 공시 전 갭 리스크 회피 (2026-08-19) <span class="badge adopt">채택 — 라이브 반영(08-19)</span></h2>
+<div class="meta">배경: 어닝 캘린더(로드맵 4 — 잠정공시+정기보고서 접수 이력로 다음 공시
+예상일을 결정적으로 추정) 구축에 이어, 그 예상일의 피처화 1차 관문. 신호일에 예상
+공시일이 D+0~+10일(20일 지평의 절반)인 종목을 후순위 강등(차순위 충원). 기각된
+PEAD(공시 <b>후</b> 드리프트, 07-06)와 별개로 공시 <b>전</b> 회피만 검증.
+15년 워크포워드 캐시(2018-04~), 판정(사전 고정): 전체 창 + 비중첩 앞 구간(~2021-06) 둘 다 BASE 초과.</div>
+<div class="row">
+  <div class="card"><h3>판정 — 신호일 5종 평균</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+      <tr style="color:var(--ink-mut);text-align:left">
+        <th style="padding:3px 6px">팔</th><th style="padding:3px 6px">전체 Sharpe</th>
+        <th style="padding:3px 6px">앞 구간(~21-06)</th><th style="padding:3px 6px">CAGR</th>
+        <th style="padding:3px 6px">MDD</th><th style="padding:3px 6px">판정</th></tr>
+      <tr><td>BASE</td><td>0.23</td><td>0.32</td><td>+2.0%</td><td>−58.9%</td><td>—</td></tr>
+      <tr><td><b>E1</b></td><td><b>0.25</b></td><td><b>0.34</b></td><td><b>+2.7%</b></td><td><b>−58.4%</b></td><td><b>채택</b> (오프셋 4/5승)</td></tr>
+    </table>
+  </div>
+</div>
+<div class="fn">두 창 모두 BASE 초과로 등록 기준 충족 — 효과 크기는 작다(Sharpe +0.02).
+<b>08-19 라이브 반영(사용자 승인)</b>: config earnings_avoid_days=10, 추천 ②b 단계
+(docs/buy-recommendation.md). 캘린더 낡음(5일) 가드로 소급 생성엔 자연 미적용.
+원문: reports/earnings_avoid_study.md.</div>
+</section>
+
+<section id="derivregime">
+<h2>⑬ 파생 레짐 보조축 — 풋콜비율·선물 미결제 (2026-08-19) <span class="badge">전 팔 보류</span></h2>
+<div class="meta">배경: KRX Open API 파생 6종 수집 가동(08-19)에 맞춰 국내 파생 지표가
+VIX(현행 R2)보다 한국 시장 위험을 직접 반영하는지 사전 등록 검증. PCR(코스피200 옵션
+야간 제외 풋/콜 거래량)·FOI(코스피200 선물 정규 미결제) z60&gt;+1 → 신호일 보유 갱신
+중단(R2 메커니즘). 소급 백필 2017-06~(6상품군 1.3만 콜). 판정(사전 고정):
+Sharpe·MDD·앞 구간 셋 다 BASE 이상.</div>
+<div class="row">
+  <div class="card"><h3>팔별 판정 — 신호일 5종 평균 (2018-04~)</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+      <tr style="color:var(--ink-mut);text-align:left">
+        <th style="padding:3px 6px">팔</th><th style="padding:3px 6px">Sharpe</th>
+        <th style="padding:3px 6px">MDD</th><th style="padding:3px 6px">앞 구간</th>
+        <th style="padding:3px 6px">발동</th><th style="padding:3px 6px">판정</th></tr>
+      <tr><td>BASE</td><td>0.23</td><td>−58.9%</td><td>0.32</td><td>0</td><td>—</td></tr>
+      <tr><td>VIX(현행 R2 재현)</td><td>0.21</td><td>−63.0%</td><td>0.34</td><td>70</td><td>보류</td></tr>
+      <tr><td>PCR</td><td>0.24</td><td>−59.4%</td><td>0.31</td><td>91</td><td>보류 (Sharpe만 우위)</td></tr>
+      <tr><td>PCR∨VIX</td><td>0.17</td><td>−60.7%</td><td>0.31</td><td>145</td><td>보류</td></tr>
+      <tr><td>FOI</td><td>0.18</td><td>−59.5%</td><td>0.34</td><td>90</td><td>보류</td></tr>
+    </table>
+  </div>
+</div>
+<div class="fn">국내 파생 지표의 보유 갱신 중단은 어느 팔도 세 기준을 채우지 못했다 —
+PCR이 가장 근접(Sharpe 0.24&gt;0.23)했으나 MDD·앞 구간 미달. 주목할 부수 소견:
+<b>현행 R2(VIX) 재현 팔도 이 창·이 캐시에선 BASE에 못 미쳤다</b>(0.21, MDD −63%) —
+R2의 원 채택 근거(macro_regime_study, 다른 창)와 검증 기반이 달라 즉시 무효화는
+아니나, 11월 A-16 레짐 재평가 때 함께 재검토할 관찰 항목으로 등재. 수집은 계속
+축적(일 6콜) — 재론은 새 가설·새 사전 등록으로만. 원문: reports/deriv_regime_study.md.</div>
+</section>
+
 <p class="fn">공통 한계: 단일 이력 1회 실험(통계적 유의성 아님) · 슬리피지 0·종가 체결 가정 ·
 섹터 로테이션은 지수 직접 보유 가정(비용 0). 규칙이 소급 검증에서 뒤집히면 되돌린다(지정예고 제외 사례).</p>
 </div>
