@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kr-quant 백테스트 V2 — 재검증 결과</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --surface-1: #fcfcfb; --page: #f9f9f7;
+  --ink-1: #0b0b0b; --ink-2: #52514e; --ink-mut: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #008300; --neg: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #008300; --neg: #e66767;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --surface-1: #1a1a19; --page: #0d0d0d;
+  --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #008300; --neg: #e66767;
+}
+.viz-root {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page); color: var(--ink-1);
+  margin: 0; padding: 20px; min-height: 100vh; box-sizing: border-box;
+  max-width: 1080px; margin-left: auto; margin-right: auto;
+}
+.viz-root h1 { font-size: 19px; margin: 0 0 2px; }
+.sub { color: var(--ink-2); font-size: 12.5px; margin: 0 0 6px; }
+.nav { font-size: 13px; margin: 0 0 18px; }
+.nav a { color: var(--s1); text-decoration: none; margin-right: 14px; }
+.nav .here { color: var(--ink-1); font-weight: 700; margin-right: 14px; }
+section { margin: 0 0 26px; }
+.viz-root h2 { font-size: 15px; margin: 0 0 2px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 9px;
+  border-radius: 9px; border: 1px solid var(--axis); color: var(--ink-2);
+  vertical-align: 2px; margin-left: 8px; }
+.badge.adopt { color: var(--s2); border-color: var(--s2); }
+.meta { font-size: 12px; color: var(--ink-mut); margin: 1px 0 10px; }
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.card { background: var(--surface-1); border: 1px solid var(--ring);
+  border-radius: 10px; padding: 12px 14px; }
+.card h3 { font-size: 12.5px; margin: 0 0 8px; font-weight: 600; color: var(--ink-2); }
+.bar-row { display: grid; grid-template-columns: 108px 1fr 64px; align-items: center;
+  gap: 8px; margin: 5px 0; font-size: 12px; }
+.bar-row .lb { color: var(--ink-2); text-align: right;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .lb b { color: var(--ink-1); }
+.bar-row .val { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: 600; }
+.track { position: relative; height: 14px; }
+.track .zero { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--axis); }
+.track .bar { position: absolute; top: 2px; height: 10px; border-radius: 0 4px 4px 0; }
+.track .bar.negv { border-radius: 4px 0 0 4px; }
+.legend { display: flex; gap: 12px; font-size: 11.5px; color: var(--ink-2); margin: 0 0 6px; }
+.legend .key { display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+  vertical-align: -1px; margin-right: 4px; }
+.grp { margin: 7px 0 9px; }
+.grp .gt { font-size: 11px; color: var(--ink-mut); margin-bottom: 2px; }
+.fn { font-size: 11px; color: var(--ink-mut); margin-top: 8px; }
+a { color: var(--s1); }
+.gloss { background: var(--surface-1); border: 1px solid var(--ring); border-radius: 10px;
+  padding: 10px 14px; margin: 0 0 20px; font-size: 12px; color: var(--ink-2); }
+.gloss summary { cursor: pointer; font-weight: 600; color: var(--ink-1); font-size: 12.5px; }
+.gloss dl { display: grid; grid-template-columns: 130px 1fr; gap: 3px 10px; margin: 8px 0 2px; }
+.gloss dt { font-weight: 600; color: var(--ink-1); }
+.gloss dd { margin: 0; }
+.paper { background: var(--surface-1); border: 1px solid var(--ring); border-radius: 10px;
+  padding: 24px 28px; margin: 34px 0 8px; }
+.paper .ptitle { font-size: 18px; font-weight: 700; margin: 0 0 4px; line-height: 1.5; }
+.paper .pmeta { font-size: 12px; color: var(--ink-mut); margin: 0 0 18px; }
+.paper h3 { font-size: 14.5px; margin: 22px 0 7px; }
+.paper h4 { font-size: 13.5px; margin: 16px 0 5px; color: var(--ink-1); }
+.paper p { font-size: 13.5px; line-height: 1.95; margin: 0 0 11px; }
+.paper .abst { border-left: 3px solid var(--axis); padding: 2px 0 2px 14px;
+  color: var(--ink-2); font-size: 13px; line-height: 1.9; margin: 0 0 4px; }
+.paper .kw { font-size: 12px; color: var(--ink-mut); margin: 8px 0 0; }
+.paper .fnote { font-size: 12px; color: var(--ink-mut); border-top: 1px solid var(--grid);
+  margin-top: 16px; padding-top: 10px; line-height: 1.8; }
+
+.v2-results { border: 1px solid var(--s1); border-radius: 12px; padding: 18px; margin: 18px 0 28px; }
+.v2-results h2 { margin-top: 0; }
+.v2-results h3 { margin: 24px 0 8px; font-size: 16px; }
+.v2-results p { font-size: 13px; line-height: 1.8; }
+.v2-results .fn { font-size: 12px; overflow-wrap: anywhere; }
+.v2-links { font-size: 13px; line-height: 2; }
+.v2-table { overflow-x: auto; margin: 12px 0; }
+.v2-table table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.v2-table caption { text-align: left; color: var(--ink-2); padding-bottom: 8px; }
+.v2-table th, .v2-table td { padding: 9px 10px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
+.v2-table th:first-child, .v2-table td:first-child { text-align: left; }
+.v2-table th { background: var(--surface-1); color: var(--ink-2); }
+.v2-archive > summary { cursor: pointer; font-size: 14px; font-weight: 600; padding: 16px 0; }
+</style>
+<div class="viz-root">
+<h1>백테스트 V2 — 2026-09-11 재검증 결과</h1>
+<p class="sub">진단 전용 — 실행 구조 81조합·모델/피처 재검증·비중/비용 비교·전진 검증 현황. 판정 기준은 사전 고정(결과 보고 튜닝 금지).
+2026-09-10까지의 검증 ①~⑰과 논문식 요약은 <a href="./backtests.html">백테스트 결과 V1</a>에 그대로 있습니다. 원문: 레포 reports/*.md</p>
+<div class="nav"><a href="./index.html">거시지표</a><a href="./positions.html">모의 보유 매도지표</a><a href="./account.html">모의계좌 성과</a><a href="./backtests.html">백테스트 결과 V1</a><span class="here">백테스트 V2</span><a href="./sectors.html">섹터 분류</a><a href="./features.html">피처 현황</a><a href="./news_scores.html">뉴스 점수</a><a href="./glossary.html">용어 사전</a><a href="./regime.html">레짐 판정 이력</a></div>
+
+<section id="backtest-v2" class="v2-results">
+<h2>백테스트 v2 — 재검증 결과 <span class="badge">운영 설정 유지</span></h2>
+<p class="meta">검증일 2026-09-11 · 게시일 2026-09-12 · 실행 구조 검증, 새 모델 재검증, 비중 비교는 서로 다른 실험입니다.</p>
+<p><b>현행 CatBoost와 12개 피처를 유지합니다.</b> 목록 내 초과 보유를 줄이는 트림은 사전 기준을 통과하지 못했습니다.
+동일가중은 예측비례보다 좋은 결과를 보였지만, 과거 입력 결손과 운영 필터 이력 부족이 남아 있어 채택을 보류합니다.</p>
+<nav class="v2-links" aria-label="백테스트 v2 목차"><a href="#v2-execution">① 실행 구조 81조합</a> · <a href="#v2-model">② 모델·피처</a> · <a href="#v2-weights">③ 비중·비용</a> · <a href="#v2-forward">④ 전진 검증</a></nav>
+
+<h3 id="v2-execution">① 실행 구조 — 81조합 입력 검사 통과, 트림 기각</h3>
+<p>3기간 × 보유 종목 상한 3종 × 보유 처리 3종 × 하루 매수 슬롯 3종을 비교했습니다.
+9월 10일의 입력 불완전 판정은 시세 보강·기업행사 반영 후 <b>81/81조합 입력 검사 통과</b>로 갱신됐습니다.
+원장·순자산가치(NAV) 검산도 모두 통과했습니다. 아래는 사전 고정한 종목 상한 30·하루 슬롯 5의 결과입니다.</p>
+<div class="v2-table"><table>
+<caption>비용 적용 누적 수익률 · 전반과 후반은 비중첩, 3년 구간은 참고용</caption>
+<thead><tr><th scope="col">평가 기간</th><th scope="col">보유 처리</th><th scope="col">총수익</th><th scope="col">Sharpe</th><th scope="col">최대낙폭</th></tr></thead>
+<tbody>
+<tr><td>전반 2018-04-02~2022-05-30</td><td>유지</td><td>−1.656%</td><td>0.065886</td><td>−29.302%</td></tr>
+<tr><td>전반</td><td>트림</td><td>−2.466%</td><td>0.044556</td><td>−28.164%</td></tr>
+<tr><td>후반 2022-05-31~2026-08-28</td><td>유지</td><td>−26.000%</td><td>−0.254206</td><td>−45.822%</td></tr>
+<tr><td>후반</td><td>트림</td><td>−23.861%</td><td>−0.248030</td><td>−44.382%</td></tr>
+<tr><td>참고 2023-07-03~2026-08-14</td><td>유지</td><td>−2.739%</td><td>0.066189</td><td>−34.771%</td></tr>
+<tr><td>참고</td><td>트림</td><td>−1.122%</td><td>0.080988</td><td>−31.390%</td></tr>
+</tbody></table></div>
+<p><b>트림 기각:</b> 두 장기 구간 모두 Sharpe와 최대낙폭이 악화되지 않아야 하지만 전반 Sharpe가 낮아졌습니다.
+상한 60·무제한에서도 사전 기준을 통과하지 못했습니다. 슬롯 확대는 탐색에 한정하며 운영 설정을 바꾸지 않습니다.</p>
+<p class="fn">범위: 기존 예측 캐시를 고정한 실행 구조 실험입니다. 해당 캐시의 학습 출처가 충분히 남아 있지 않아 현행 12피처 모델 검증으로 일반화할 수 없습니다.
+방어 슬리브·레짐 배분·정수 수량·결제 지연은 미반영, 슬리피지는 0입니다. 등록 기업행사의 현금·주식 승계 집행은 0건이므로 실제 정산 처리를 실증한 결과도 아닙니다.
+출처: reports/live_semantics_actions_20260911.md · 독립 검토: live_semantics_actions_20260911_review.md.</p>
+
+<h3 id="v2-model">② 새 입력으로 모델·피처 재검증 — CatBoost 유지</h3>
+<p>2018-04~2026-07의 100개월, 7설정 × 5신호일 경로, 1,176개 학습 체크포인트를 검증했습니다.
+각 시점 이전 데이터로 분기별 재학습했습니다. IC는 예측 순위와 실제 20일 수익 순위의 상관입니다.</p>
+<div class="v2-table"><table>
+<caption>전체 기간 순위 선택력 · 95% 구간은 6개월 이동 블록 부트스트랩 1,000회</caption>
+<thead><tr><th scope="col">설정</th><th scope="col">IC</th><th scope="col">IC 95% 구간</th><th scope="col">해석</th></tr></thead>
+<tbody>
+<tr><td>CatBoost 전체 12피처</td><td>0.0263</td><td>0.0117~0.0412</td><td>현행 유지</td></tr>
+<tr><td>추세 제거</td><td>0.0018</td><td>−0.0124~0.0133</td><td>현행 대비 악화</td></tr>
+<tr><td>변동성 제거</td><td>0.0224</td><td>0.0097~0.0362</td><td>제거 근거 없음</td></tr>
+<tr><td>거래활동 제거</td><td>0.0243</td><td>0.0070~0.0399</td><td>제거 근거 없음</td></tr>
+<tr><td>재무 제거</td><td>0.0180</td><td>0.0032~0.0328</td><td>현행 대비 IC 감소</td></tr>
+<tr><td>LightGBM 전체</td><td>0.0223</td><td>0.0111~0.0329</td><td>교체 근거 없음</td></tr>
+<tr><td>XGBoost 전체</td><td>0.0245</td><td>0.0127~0.0362</td><td>교체 근거 없음</td></tr>
+</tbody></table></div>
+<p>현행 상위 20종목의 동일 적격 유니버스 대비 초과수익은 <b>−0.118%p</b>(95% 구간 −0.846~+0.637%p)로 0을 포함합니다.
+IC가 양수라는 결과만으로 수익 우위를 확정할 수 없습니다. 후반 최고 예측 분위의 평균 예측은 +5.3655%, 실제는 +0.1947%로 예측 크기의 과신도 확인됐습니다.</p>
+<p class="fn">모델 간 판정은 현행 대비 차이의 구간을 사용했습니다. 여러 비교를 포함한 탐색적 명목 신뢰구간이며 다중비교 보정 결과가 아닙니다.
+별도 실행 감사는 원장/NAV 24/24 통과, 가격 입력은 7/24만 통과했습니다. 당시 섹터·구성종목·어닝 입력이 모두 보관된 신호일은 0/498이므로 운영 성능 인증은 아닙니다.
+위 81조합과 예측·입력이 달라 완전성 숫자를 합칠 수 없습니다. 출처: reports/model_revalidation_20260911_results.md.</p>
+
+<h3 id="v2-weights">③ 동일 종목 비중·비용 비교 — 동일가중 우세, 채택 보류</h3>
+<p>같은 CatBoost 선정 목록을 유지한 채 예측비례/동일가중 × 비용 적용/무비용 × 3기간의 12조합을 비교했습니다.
+예측비례는 양수 예측값의 크기에 따라, 동일가중은 같은 대상 종목에 같은 비중으로 배분합니다. 재학습은 하지 않았습니다.</p>
+<div class="v2-table"><table>
+<caption>누적 수익률 · 비용은 수수료·거래세, 슬리피지 0</caption>
+<thead><tr><th scope="col">기간</th><th scope="col">예측비례<br>비용 적용</th><th scope="col">동일가중<br>비용 적용</th><th scope="col">차이</th><th scope="col">예측비례<br>무비용</th><th scope="col">동일가중<br>무비용</th><th scope="col">가격 입력 검사</th></tr></thead>
+<tbody>
+<tr><td>전체 2018-04~2026-08</td><td>−23.51%</td><td>−9.11%</td><td>+14.40%p</td><td>−16.83%</td><td>−2.93%</td><td>4/4 실패</td></tr>
+<tr><td>전반 2018-04~2022-05</td><td>−17.43%</td><td>−7.90%</td><td>+9.53%p</td><td>−14.00%</td><td>−4.93%</td><td>4/4 실패</td></tr>
+<tr><td>후반 2022-06~2026-08</td><td>+2.91%</td><td>+6.81%</td><td>+3.90%p</td><td>+7.29%</td><td>+10.41%</td><td>4/4 통과</td></tr>
+</tbody></table></div>
+<p>비용 적용 전체 기간 최대낙폭은 −58.53%→−38.71%, 후반은 −42.75%→−27.83%로 줄었습니다.
+12조합 모두 독립 원장/NAV 검산을 통과했지만, 역사적 입력 결손·당시 운영 필터 부재가 남아 있어 <b>운영 비중은 유지</b>합니다.</p>
+<p class="fn">차이는 동일가중−예측비례입니다. 무비용 대비 수익률 차이에는 보유·현금 경로 변화도 포함돼 실제 지급 비용과 같지 않습니다.
+3종목·69개 누락 날짜를 기존 캐시에서 복구 후보로 찾았지만 위 비교에는 적용하지 않았습니다. 다른 11종목은 기업행사·정산 근거 보강이 필요합니다.
+출처: reports/model_followup_20260911_results.md.</p>
+
+<h3 id="v2-forward">④ 다음 검증 — 실제 입력을 보관하고 20거래일 관측</h3>
+<p>추천 생성에 실제 사용한 입력 원문·필터 전 점수·최종 추천을 보관하는 기능을 9월 11일 NAS에 배포했습니다.
+관련 테스트 175개와 기존 기록 사본 14개 해시 검사를 통과했습니다. 기록이 완전하고 진입 전에 확보된 표본만 평가 대상으로 삼습니다.</p>
+<p><b>9월 11일 마감 기준 성숙한 적격 표본은 0개입니다.</b> 기존 9월 1일 추천의 사후 수집본은 평가에서 제외했습니다.
+다음 정상 추천부터 기록을 확인하고, 진입 후 20거래일이 지난 적격 표본으로 예측 크기와 비중 차이를 평가합니다. 아직 전진 수익률은 계산하지 않았습니다.</p>
+</section>
+
+<p class="fn">이 페이지는 2026-09-11 재검증(V2)만 담습니다. 이전 검증 ①~⑰·용어·읽는 법·논문식 전문 기록은
+<a href="./backtests.html">백테스트 결과 V1</a>, 용어 정의는 <a href="./glossary.html">용어 사전</a>을 보세요.</p>
+</div>
