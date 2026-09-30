@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kr-quant 연구 노트</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --surface-1: #fcfcfb; --page: #f9f9f7;
+  --ink-1: #0b0b0b; --ink-2: #52514e; --ink-mut: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #008300; --neg: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #008300; --neg: #e66767;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --surface-1: #1a1a19; --page: #0d0d0d;
+  --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-mut: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #008300; --neg: #e66767;
+}
+.viz-root {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page); color: var(--ink-1);
+  margin: 0; padding: 20px; min-height: 100vh; box-sizing: border-box;
+  max-width: 1080px; margin-left: auto; margin-right: auto;
+}
+.viz-root h1 { font-size: 19px; margin: 0 0 2px; }
+.sub { color: var(--ink-2); font-size: 12.5px; margin: 0 0 6px; }
+.nav { font-size: 13px; margin: 0 0 18px; }
+.nav a { color: var(--s1); text-decoration: none; margin-right: 14px; }
+.nav .here { color: var(--ink-1); font-weight: 700; margin-right: 14px; }
+section { margin: 0 0 26px; }
+.viz-root h2 { font-size: 15px; margin: 0 0 2px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 9px;
+  border-radius: 9px; border: 1px solid var(--axis); color: var(--ink-2);
+  vertical-align: 2px; margin-left: 8px; }
+.badge.adopt { color: var(--s2); border-color: var(--s2); }
+.meta { font-size: 12px; color: var(--ink-mut); margin: 1px 0 10px; }
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.card { background: var(--surface-1); border: 1px solid var(--ring);
+  border-radius: 10px; padding: 12px 14px; }
+.card h3 { font-size: 12.5px; margin: 0 0 8px; font-weight: 600; color: var(--ink-2); }
+.bar-row { display: grid; grid-template-columns: 108px 1fr 64px; align-items: center;
+  gap: 8px; margin: 5px 0; font-size: 12px; }
+.bar-row .lb { color: var(--ink-2); text-align: right;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .lb b { color: var(--ink-1); }
+.bar-row .val { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: 600; }
+.track { position: relative; height: 14px; }
+.track .zero { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--axis); }
+.track .bar { position: absolute; top: 2px; height: 10px; border-radius: 0 4px 4px 0; }
+.track .bar.negv { border-radius: 4px 0 0 4px; }
+.legend { display: flex; gap: 12px; font-size: 11.5px; color: var(--ink-2); margin: 0 0 6px; }
+.legend .key { display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+  vertical-align: -1px; margin-right: 4px; }
+.grp { margin: 7px 0 9px; }
+.grp .gt { font-size: 11px; color: var(--ink-mut); margin-bottom: 2px; }
+.fn { font-size: 11px; color: var(--ink-mut); margin-top: 8px; }
+a { color: var(--s1); }
+.gloss { background: var(--surface-1); border: 1px solid var(--ring); border-radius: 10px;
+  padding: 10px 14px; margin: 0 0 20px; font-size: 12px; color: var(--ink-2); }
+.gloss summary { cursor: pointer; font-weight: 600; color: var(--ink-1); font-size: 12.5px; }
+.gloss dl { display: grid; grid-template-columns: 130px 1fr; gap: 3px 10px; margin: 8px 0 2px; }
+.gloss dt { font-weight: 600; color: var(--ink-1); }
+.gloss dd { margin: 0; }
+.paper { background: var(--surface-1); border: 1px solid var(--ring); border-radius: 10px;
+  padding: 24px 28px; margin: 34px 0 8px; }
+.paper .ptitle { font-size: 18px; font-weight: 700; margin: 0 0 4px; line-height: 1.5; }
+.paper .pmeta { font-size: 12px; color: var(--ink-mut); margin: 0 0 18px; }
+.paper h3 { font-size: 14.5px; margin: 22px 0 7px; }
+.paper h4 { font-size: 13.5px; margin: 16px 0 5px; color: var(--ink-1); }
+.paper p { font-size: 13.5px; line-height: 1.95; margin: 0 0 11px; }
+.paper .abst { border-left: 3px solid var(--axis); padding: 2px 0 2px 14px;
+  color: var(--ink-2); font-size: 13px; line-height: 1.9; margin: 0 0 4px; }
+.paper .kw { font-size: 12px; color: var(--ink-mut); margin: 8px 0 0; }
+.paper .fnote { font-size: 12px; color: var(--ink-mut); border-top: 1px solid var(--grid);
+  margin-top: 16px; padding-top: 10px; line-height: 1.8; }
+
+.v2-results { border: 1px solid var(--s1); border-radius: 12px; padding: 18px; margin: 18px 0 28px; }
+.v2-results h2 { margin-top: 0; }
+.v2-results h3 { margin: 24px 0 8px; font-size: 16px; }
+.v2-results p { font-size: 13px; line-height: 1.8; }
+.v2-results .fn { font-size: 12px; overflow-wrap: anywhere; }
+.v2-links { font-size: 13px; line-height: 2; }
+.v2-table { overflow-x: auto; margin: 12px 0; }
+.v2-table table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.v2-table caption { text-align: left; color: var(--ink-2); padding-bottom: 8px; }
+.v2-table th, .v2-table td { padding: 9px 10px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
+.v2-table th:first-child, .v2-table td:first-child { text-align: left; }
+.v2-table th { background: var(--surface-1); color: var(--ink-2); }
+.v2-archive > summary { cursor: pointer; font-size: 14px; font-weight: 600; padding: 16px 0; }
+</style>
+<div class="viz-root">
+<h1>연구 노트</h1>
+<p class="sub">운영에 반영하지 않은 탐색 연구의 결과입니다. 판정 기준은 결과를 보기 전에 사전 등록으로 고정했고, 결과를 보고 기준을 바꾸지 않습니다. 원문: 레포 reports/*.md</p>
+<div class="nav"><a href="./index.html">거시지표</a><a href="./positions.html">모의 보유 매도지표</a><a href="./account.html">모의계좌 성과</a><a href="./backtests.html">백테스트 V1</a><a href="./backtests_v2.html">백테스트 V2</a><span class="here">연구 노트</span><a href="./sectors.html">섹터 분류</a><a href="./features.html">피처 현황</a><a href="./news_scores.html">뉴스 점수</a><a href="./glossary.html">용어 사전</a><a href="./regime.html">레짐 판정 이력</a></div>
+
+<section id="governance" class="v2-results">
+<h2>지배구조·상속 이벤트 — 공시로 별도 신호를 만들 수 있나 <span class="badge">근거 없음 · 운영 변경 없음</span></h2>
+<p class="meta">검증일 2026-09-30 · 1단계(공시 제목) · 사전 등록 docs/superpowers/specs/2026-09-30-governance-event-study-preregistration.md · 독립 코드·결과 리뷰 반영</p>
+<p><b>공시 제목으로 잡은 지배구조 이벤트 5부류 모두 "근거 없음"입니다.</b> 공시 접수 후 최소 2거래일 뒤 종가에 진입하면 20거래일
+초과수익이 유니버스 평균과 통계적으로 구분되지 않았습니다(다중비교 보정 p 전부 1.00, 보정 전 최소 0.22). 사전에 정한 표본 하한은
+모두 넘었지만(고유 이벤트 70~11,796건, 64~111개월) 구간이 넓어 ±2~5%p 규모의 효과를 배제하지는 못합니다 — "효과 없음"이 아니라
+<b>"이 표본으로는 구분되지 않음"</b>입니다. 현재 피처와 별도인 매매 신호로 쓸 근거는 없고, 운영은 그대로입니다.</p>
+<nav class="v2-links" aria-label="지배구조 연구 목차"><a href="#gov-method">① 질문과 방법</a> · <a href="#gov-result">② 결과</a> · <a href="#gov-why">③ 해석</a> · <a href="#gov-next">④ 다음 단계</a></nav>
+
+<h3 id="gov-method">① 질문과 방법</h3>
+<p>질문: 대기업은 지배구조 재편·상속·경영권 분쟁으로 주가가 크게 움직이는데, 이를 뉴스나 공시로 미리 알아채 별도 신호로 만들 수 있는가.
+2017-01~2026-08 DART 거래소공시 48만 건과 주요사항보고 7.3만 건의 <b>제목</b>에서 아래 5부류를 뽑았습니다(정정·해제·취소·자회사 사건 제외).</p>
+<div class="v2-table"><table>
+<caption>이벤트 부류</caption>
+<thead><tr><th scope="col">부류</th><th scope="col">내용</th><th scope="col">공시 원천</th></tr></thead>
+<tbody>
+<tr><td>E1 지배권 이전</td><td>최대주주 변경·경영권 양수도 계약</td><td>거래소공시(I)</td></tr>
+<tr><td>E2 최대주주 주식담보</td><td>최대주주 변경을 수반하는 주식담보 계약</td><td>거래소공시(I)</td></tr>
+<tr><td>E3 경영권 분쟁 소송</td><td>경영권 분쟁 소송 제기·신청</td><td>거래소공시(I)</td></tr>
+<tr><td>E4 최대주주등 지분 변동 신고</td><td>최대주주·특수관계인 보유 변동(사유 혼재)</td><td>거래소공시(I)</td></tr>
+<tr><td>E5 자기 회사 구조개편</td><td>합병·분할·분할합병·주식교환 결정(주요사항보고)</td><td>주요사항보고(B)</td></tr>
+</tbody></table></div>
+<p>시점 규율: 공시는 <b>접수 다음 거래일부터</b> 알려진 것으로 봅니다. 신호일 D 기준 최근 20거래일 안에 유효해진 이벤트가 있으면 표시하고,
+그 종목의 이후 20거래일 수익(D+1 종가 → D+21 종가)에서 같은 날 시총 상위 500 유니버스 평균을 뺐습니다. 신호일은 매월 5종(1·6·11·16번째
+거래일과 말일)이고, 월 평균을 6개월 블록 부트스트랩으로 구간을 냈습니다. p는 같은 부트스트랩 분포에서 0을 기준으로 잰 양측
+비율이라, 분포가 치우치면 구간 하한이 0 근처여도 p가 클 수 있습니다.</p>
+
+<h3 id="gov-result">② 결과</h3>
+<div class="v2-table"><table>
+<caption>주 결과 · 창 20거래일 · 신호일 2017-05~2026-07 · 단위 %p</caption>
+<thead><tr><th scope="col">부류</th><th scope="col">고유 이벤트</th><th scope="col">월수</th><th scope="col">평균 초과 [95% 구간]</th><th scope="col">p</th><th scope="col">보정 p</th><th scope="col">전반 / 후반</th><th scope="col">모델 잔차</th><th scope="col">대형주 100 안</th><th scope="col">판정</th></tr></thead>
+<tbody>
+<tr><td>E1 지배권 이전</td><td>300</td><td>110</td><td>-0.22 [-1.87, +1.61]</td><td>0.81</td><td>1.00</td><td>-1.20 / +0.80</td><td>-0.03</td><td>+0.66 (56개월)</td><td>근거 없음</td></tr>
+<tr><td>E2 최대주주 주식담보</td><td>70</td><td>64</td><td>+0.71 [-2.38, +6.81]</td><td>0.56</td><td>1.00</td><td>+2.98 / -2.20</td><td>+0.46</td><td>-6.88 (2개월·신호 3건)</td><td>근거 없음</td></tr>
+<tr><td>E3 경영권 분쟁 소송</td><td>170</td><td>69</td><td>-1.25 [-3.59, +0.87]</td><td>0.22</td><td>1.00</td><td>-2.24 / -0.69</td><td>-1.54</td><td>-0.43 (40개월)</td><td>근거 없음</td></tr>
+<tr><td>E4 최대주주등 지분 변동 신고</td><td>11,796</td><td>111</td><td>+0.20 [-0.22, +0.49]</td><td>0.55</td><td>1.00</td><td>-0.04 / +0.45</td><td>+0.23</td><td>+0.08 (111개월)</td><td>근거 없음</td></tr>
+<tr><td>E5 자기 회사 구조개편</td><td>418</td><td>111</td><td>+0.36 [-1.16, +1.17]</td><td>0.89</td><td>1.00</td><td>-1.14 / +1.88</td><td>+0.73</td><td>+0.82 (87개월)</td><td>근거 없음</td></tr>
+</tbody></table></div>
+<p class="fn">모델 잔차: 같은 날 현행 CatBoost 예측 10분위 안에서 뺀 초과(2018-04~) — 기존 피처가 이미 설명하는 부분을 걷어낸 값입니다.
+대형주 100 안: 시총 상위 100 부분집합 안의 평균 대비 초과. 전반은 2022년 이전 신호일, 후반은 이후.</p>
+<div class="v2-table"><table>
+<caption>보조 · 창 길이 민감도와 레이블 결손 (판정에 쓰지 않음)</caption>
+<thead><tr><th scope="col">부류</th><th scope="col">창 5일</th><th scope="col">창 20일(주)</th><th scope="col">창 60일</th><th scope="col">레이블 결손 표시/비표시</th></tr></thead>
+<tbody>
+<tr><td>E1 지배권 이전</td><td>+0.18</td><td>-0.22</td><td>-0.58</td><td>0.54% / 0.07%</td></tr>
+<tr><td>E2 최대주주 주식담보</td><td>-0.15</td><td>+0.71</td><td>-0.57</td><td>0.00% / 0.07%</td></tr>
+<tr><td>E3 경영권 분쟁 소송</td><td>-1.58</td><td>-1.25</td><td>-0.78</td><td>0.00% / 0.07%</td></tr>
+<tr><td>E4 최대주주등 지분 변동 신고</td><td>+0.26</td><td>+0.20</td><td>+0.14</td><td>0.12% / 0.07%</td></tr>
+<tr><td>E5 자기 회사 구조개편</td><td>+1.88</td><td>+0.36</td><td>+0.36</td><td>0.05% / 0.07%</td></tr>
+</tbody></table></div>
+
+<h3 id="gov-why">③ 해석</h3>
+<p><b>경영권 분쟁 소송(E3)의 방향이 가장 일관됩니다</b> — 주 창의 전반·후반·모델 잔차와 세 창 전체 평균이 모두 음(−0.7~−2.2%p)입니다.
+다만 창 5일 후반과 대형주 전반은 양이고, 구간이 0을 포함하며 다중비교 기준에 한참 못 미칩니다. 결과를 본 뒤 고른 관찰이라 이것만으로
+필터를 만들지 않으며, 쓰려면 새 사전 등록과 전향 확인이 필요합니다.</p>
+<p>보조 칸 70개 중 명목 p&lt;0.05는 2개(구조개편 창 5일 후반 +4.42%p, 지배권 이전 창 60일 전반 −0.89%p)로, 우연히 기대되는 3.5개보다 적어
+잡음과 부합합니다. 레이블 결손(감자·정지로 사후 제외)은 표시 종목에서도 1% 미만이라 판정을 바꿀 크기가 아니지만, 지배권 이전(E1)은
+비표시 종목보다 약 7.7배 잦습니다.</p>
+<p>왜 안 보였는지는 가설입니다(검정하지 않음). ① 지배권 이전·분쟁의 큰 움직임은 공시 당일·익일에 나고, 규칙상 그 뒤에 진입하면
+남는 방향이 없었을 수 있다(당일 반응은 측정하지 않았다). ② 제목은 사유를 섞는다 — 지분 변동 신고(E4)에는 장내매매·증여·상속·담보가,
+구조개편(E5)에는 완전자회사 소규모 합병과 지배구조 재편이 한 제목으로 묶여 반대 방향이 상쇄될 수 있다. E4는 유니버스 종목-신호의
+약 13%를 덮는 사실상 범용 표시라 평균이 희석된다. ③ 시총 상위 100에서 지배권 이전·주식담보 이벤트 자체가 드물다(지배권 이전 56개월,
+주식담보 신호 3건). 상속은 1단계의 측정 대상이 아니다.</p>
+
+<h3 id="gov-next">④ 다음 단계</h3>
+<p><b>2단계 — 상속·증여 사유 분해(미실행).</b> 사유는 제목이 아니라 정기보고서의 최대주주 현황 "변동 사유" 칸에 있습니다.
+2021년 삼성전자 반기보고서에서 "피상속"·"상속" 사유와 특수관계인별 주식 수 변화를 실제로 확인했습니다. 다만 정기보고서라
+실제 상속보다 최대 약 4개월 늦게 잡힙니다. 가족 전원의 보유·변동 사유를 분기·수시로 쌓는 <b>대기업 주요 인물 지분 명부</b>를
+먼저 만들고, 그 이력으로 상속·증여 이벤트를 별도 등록해 시험하는 순서가 맞습니다.</p>
+<p><b>3단계 — 뉴스(기술 통계만).</b> 뉴스 아카이브는 2026-07-05부터 88일(610만 건)이라 20일 수익 검정은 할 수 없습니다.
+유니버스 500 중 키워드 기사가 있는 종목은 경영권 분쟁 74·상속 120·증여 106·지배구조 293곳이었고, 키워드 잡음이 큽니다.
+기존 결정대로 12개월 축적 후 별도 승인 대상입니다.</p>
+<p class="fn">한계: 신호기간 가격수익이며 포트폴리오·비용·정수주 반영 수익이 아닙니다. 과거 운용 필터는 복원하지 않았고, 유니버스가 시총 상위 500이라
+소형주 M&amp;A 이벤트는 대부분 표본 밖입니다. 원문 reports/governance_event_study_20260930.md · 결과 JSON reports/governance_event_study_20260930/result.json ·
+코드 src/backtest/governance_event_study.py</p>
+</section>
+
+<details class="gloss"><summary>용어 풀이</summary><dl>
+<dt>초과수익(%p)</dt><dd>표시된 종목의 20거래일 수익 − 같은 날 유니버스 평균 수익. 퍼센트포인트.</dd>
+<dt>유효일</dt><dd>공시 접수 다음 거래일. 이날부터 그 공시를 알고 있었다고 본다(미래 정보 차단).</dd>
+<dt>블록 부트스트랩</dt><dd>월 시계열을 6개월 덩어리로 다시 뽑아 평균의 흔들림을 재는 방법. 연속된 달의 상관을 보존한다.</dd>
+<dt>보정 p(Holm)</dt><dd>5부류를 한꺼번에 시험해 우연히 하나가 걸릴 확률을 보정한 p값. 0.05 미만이어야 후보.</dd>
+<dt>모델 잔차</dt><dd>현행 모델 예측이 비슷한 종목끼리 비교한 초과수익. 기존 피처와 별개의 정보인지 본다.</dd>
+</dl></details>
+</div>
