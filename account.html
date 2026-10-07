@@ -101,20 +101,31 @@ th[data-sorted="asc"]::after { content: " ▲"; font-size: 9px; } th[data-sorted
 </div>
 </div>
 <script>
-const D = {"asof":"2026-10-08","kpi":{"asof":"2026-10-08","start":"2026-10-08","start_eval":50000000,"total_eval":50000000,"deposit":50000000,"stock_eval":0,"ret_pct":0.0,"kospi_ret_pct":0.0,"excess_pct":0.0,"cash_ratio":100.0,"n_positions":0,"unrealized":0,"realized":0,"n_buys":0,"n_sells":0,"sleeve_counts":{}},"equity":{"dates":["2026-10-08"],"total":[100.0],"total_won":[50000000],"cash_ratio":[100.0],"kospi":[100.0]},"monthly":[{"month":"2026-10","acct":0.0,"kospi":0.0,"cash":100.0,"partial":true}],"holdings":[],"trades":[],"realized_by_sleeve":[],"realized_by_month":[],"account_epoch":{"start":"2026-10-08","prev_first":"2026-07-03","prev_last":"2026-10-07","prev_last_total":49026216}};
+const D = {"asof":"2026-10-08","kpi":{"asof":"2026-10-08","start":"2026-10-08","start_eval":50000000,"total_eval":50000000,"deposit":50000000,"stock_eval":0,"ret_pct":0.0,"kospi_ret_pct":0.0,"excess_pct":0.0,"cash_ratio":100.0,"n_positions":0,"unrealized":0,"realized":0,"n_buys":5,"n_sells":0,"sleeve_counts":{}},"equity":{"dates":["2026-10-08"],"total":[100.0],"total_won":[50000000],"cash_ratio":[100.0],"kospi":[100.0]},"monthly":[{"month":"2026-10","acct":0.0,"kospi":0.0,"cash":100.0,"partial":true}],"holdings":[],"trades":[{"date":"2026-10-08","time":"08:50:28","side":"buy","code":"029780","name":"삼성카드","qty":6,"price":41850,"amount":251100,"tranche":"1","sleeve":"defense","kind":"buy","ret":null,"pnl":null},{"date":"2026-10-08","time":"08:50:25","side":"buy","code":"031210","name":"서울보증보험","qty":6,"price":42550,"amount":255300,"tranche":"1","sleeve":"defense","kind":"buy","ret":null,"pnl":null},{"date":"2026-10-08","time":"08:50:22","side":"buy","code":"008060","name":"대덕","qty":18,"price":15880,"amount":285840,"tranche":"1","sleeve":"defense","kind":"buy","ret":null,"pnl":null},{"date":"2026-10-08","time":"08:50:19","side":"buy","code":"071320","name":"지역난방공사","qty":3,"price":78700,"amount":236100,"tranche":"1","sleeve":"defense","kind":"buy","ret":null,"pnl":null},{"date":"2026-10-08","time":"08:50:16","side":"buy","code":"017800","name":"현대엘리베이터","qty":4,"price":72400,"amount":289600,"tranche":"1","sleeve":"defense","kind":"buy","ret":null,"pnl":null}],"realized_by_sleeve":[],"realized_by_month":[],"account_epoch":{"start":"2026-10-08","prev_first":"2026-07-03","prev_last":"2026-10-07","prev_last_total":49026216,"prev_page":"account_prev_20261007.html"}};
 const won = v => v == null ? "—" : v.toLocaleString("ko-KR") + "원";
 const pct = v => v == null ? "—" : (v > 0 ? "+" : "") + v.toFixed(2) + "%";
 const cls = v => v == null ? "" : v > 0 ? "pos" : v < 0 ? "neg" : "";
 const sleeveHtml = s => s === "momentum" ? '<span class="mom">모멘텀</span>' : s === "defense" ? '<span class="def">방어</span>' : s === "초기" ? '<span title="주문 사유 미기록분(트랜치 전환 07-18 이전·초기 레짐 집행)">초기</span>' : (s || "").startsWith("매도전송") ? '<span class="neg" title="07:30 스냅샷 뒤 08:50에 매도 주문이 나간 종목 — 다음 스냅샷에서 빠진다">' + s + '</span>' : s;
 const kindKo = k => ({buy: "매수", replace: "교체매도", "-": "-"})[k] || k;
 
-// 모의계좌 재발급 안내 — 현재 계좌 구간만 그린다(자금 리셋을 수익으로 그리지 않게)
-if (D.account_epoch) {
-  const e = D.account_epoch, el = document.getElementById("epoch");
-  el.textContent = "현재 모의계좌는 " + e.start + " 시작(재발급 — 초기 자금으로 리셋)." +
-    (e.prev_last ? " 이전 계좌(" + e.prev_first + " ~ " + e.prev_last + ")의 마지막 총평가는 " + won(e.prev_last_total) + "." : "");
-  el.hidden = false;
-}
+// 모의계좌 재발급 안내 — 현재 계좌 구간만 그린다(자금 리셋을 수익으로 그리지 않게).
+// 보관 페이지(이전 계좌)는 거꾸로 현재 페이지를 링크한다. 값은 배치가 만든 것이지만 DOM API로 넣는다.
+(function () {
+  const el = document.getElementById("epoch");
+  const link = (href, text) => { const a = document.createElement("a"); a.href = href; a.textContent = text; return a; };
+  if (D.account_archive) {
+    const a = D.account_archive;
+    el.append("이 페이지는 이전 모의계좌(" + a.first + " ~ " + a.last + ")의 보관본입니다 — 더 갱신되지 않습니다. 현재 계좌: ",
+              link(a.current_page, "모의계좌 성과"));
+    el.hidden = false;
+  } else if (D.account_epoch) {
+    const e = D.account_epoch;
+    el.append("현재 모의계좌는 " + e.start + " 시작(재발급 — 초기 자금으로 리셋)." +
+      (e.prev_last ? " 이전 계좌(" + e.prev_first + " ~ " + e.prev_last + ")의 마지막 총평가는 " + won(e.prev_last_total) + "." : ""));
+    if (e.prev_page) el.append(" ", link(e.prev_page, "이전 계좌 성과 보기"));
+    el.hidden = false;
+  }
+})();
 
 // KPI
 (function () {
